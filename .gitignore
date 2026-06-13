@@ -26,3 +26,4 @@ Desktop.ini
 
 # Firebase
 .firebase/
+firebase-service-account.json
