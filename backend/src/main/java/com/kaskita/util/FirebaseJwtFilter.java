@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
 import com.kaskita.model.User;
+import com.kaskita.service.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,6 +26,11 @@ import java.util.Map;
 public class FirebaseJwtFilter extends OncePerRequestFilter {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final UserService userService;
+
+    public FirebaseJwtFilter(UserService userService) {
+        this.userService = userService;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -41,25 +47,20 @@ public class FirebaseJwtFilter extends OncePerRequestFilter {
 
         try {
             FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(token);
-            
-            // Map Firebase Token claims to our User model representation
             String uid = decodedToken.getUid();
-            String email = decodedToken.getEmail();
-            String name = decodedToken.getName();
             
-            // Default role is USER, but you can extract it from custom claims if set
-            String role = "ROLE_USER"; 
-            if (decodedToken.getClaims().containsKey("role")) {
-                role = (String) decodedToken.getClaims().get("role");
+            // Cari data user di Firestore
+            User user = userService.getUserByUid(uid);
+            
+            if (user == null || !user.isActive()) {
+                throw new Exception("User record not found in database or is inactive.");
             }
-            
-            User user = User.builder()
-                    .uid(uid)
-                    .email(email)
-                    .name(name)
-                    .role(role)
-                    .isActive(true)
-                    .build();
+
+            // Role dari Firestore
+            String role = user.getRole();
+            if (role == null || role.isEmpty()) {
+                role = "ROLE_MEMBER"; // Default fallback
+            }
 
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                     user, 
@@ -82,7 +83,7 @@ public class FirebaseJwtFilter extends OncePerRequestFilter {
         
         Map<String, Object> errorDetails = new HashMap<>();
         errorDetails.put("error", "Unauthorized");
-        errorDetails.put("message", "Invalid or expired Firebase ID token: " + message);
+        errorDetails.put("message", "Authentication failed: " + message);
         
         objectMapper.writeValue(response.getOutputStream(), errorDetails);
     }
