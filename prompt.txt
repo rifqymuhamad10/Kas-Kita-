@@ -1,14 +1,28 @@
-Sistem, tolong buatkan implementasi Backend (Spring Boot) untuk proses Pendaftaran User (Registrasi) dan Manajemen Session (Autentikasi) berdasarkan spesifikasi dokumen "Kas_Kita_Documentation.docx"[cite: 1].
+PROJECT: Kas Kita — aplikasi manajemen kas kelas berbasis web (PWA)
+TECH STACK: React (Frontend) + Spring Boot (Backend) + Firebase (Auth, Firestore, Storage, FCM)
+BASE PACKAGE: com.kaskita
+API BASE URL: https://api.kaskita.id/api/v1
+AUTH: Firebase ID Token (Bearer) — role dibaca dari Firestore, BUKAN dari JWT claims
 
-Ketentuan Teknis:
-1. Kita menggunakan Firebase Authentication untuk mengelola password & login, namun data profil user dan role harus disimpan di Firebase Firestore (Koleksi `users`).
-2. Buat `com.kaskita.model.dto.RegisterRequest` yang menerima field: `uid`, `name`, `email`, dan `role`.
-3. Buat Auth Controller dengan endpoint `POST /api/v1/auth/register` (Public/PermitAll). Endpoint ini bertugas menerima data setelah user sukses mendaftar di Firebase client, lalu menyimpannya ke koleksi Firestore `users` dengan status `isActive = true`. Secara default, user baru mendapat role 'member' kecuali ditentukan lain.
-4. Buat endpoint `GET /api/v1/auth/me` (Secured). Endpoint ini mengembalikan data profil lengkap user yang saat ini sedang login/session-nya aktif berdasarkan token yang dikirim.
-5. Buat `JwtAuthenticationFilter` (Security Session Handler):
-   - Filter ini harus memotong setiap request ke `/api/v1/**` (kecuali endpoint register).
-   - Membaca Header `Authorization: Bearer <TOKEN>`.
-   - Memvalidasi token tersebut menggunakan Firebase Admin SDK `FirebaseAuth.getInstance().verifyIdToken()`.
-   - Jika valid, ambil UID dan cari data user di Firestore untuk mendapatkan 'role'-nya, lalu masukkan objek Authentication ke `SecurityContextHolder` Spring (Gunakan `Stateless` session policy, karena state session dijaga oleh token Firebase).
+[CONTEXT BLOCK DI ATAS]
 
-Tuliskan kode Java yang clean, aman dari SQL/NoSQL injection, dan gunakan kustom exception handler jika token kedaluwarsa atau tidak valid.
+STEP: B4 — Authentication Middleware
+
+CONTEXT SEBELUMNYA: Firebase sudah terinisialisasi (Step B3 selesai).
+
+TASK:
+Implementasi JWT authentication menggunakan Firebase ID Token:
+1. FirebaseTokenFilter.java (extends OncePerRequestFilter) — validasi Bearer token dari request header
+2. SecurityConfig.java — konfigurasi Spring Security: gunakan filter, disable session, /auth/** publik
+3. FirebaseTokenUtil.java di util/ — helper untuk verify token dan extract uid
+
+ATURAN:
+- Role TIDAK dibaca dari JWT claims
+- Role akan di-fetch dari Firestore users collection (diimplementasi di step berikutnya)
+- Return 401 jika token tidak ada atau tidak valid
+
+BATASAN:
+- Jangan implementasi Firestore role fetching dulu
+- Hanya token validation saja
+
+cek apakah sudah ada apa belum

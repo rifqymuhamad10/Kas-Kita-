@@ -60,7 +60,10 @@ public class FirebaseJwtFilter extends OncePerRequestFilter {
             String role = user.getRole();
             if (role == null || role.isEmpty()) {
                 role = "ROLE_MEMBER"; // Default fallback
+            } else if (!role.startsWith("ROLE_")) {
+                role = "ROLE_" + role.toUpperCase();
             }
+            user.setRole(role); // Simpan role yang terstandardisasi ke objek user
 
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                     user, 

@@ -27,3 +27,7 @@ Desktop.ini
 # Firebase
 .firebase/
 firebase-service-account.json
+
+# JVM crash logs
+hs_err_pid*.log
+

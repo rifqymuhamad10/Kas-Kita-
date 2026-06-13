@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
 @RestController
 @RequestMapping("/api/v1/transactions")
 public class TransactionController {
@@ -39,6 +41,7 @@ public class TransactionController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<String> addTransaction(@RequestBody Transaction transaction) {
         try {
             String updateTime = transactionService.addTransaction(transaction);
