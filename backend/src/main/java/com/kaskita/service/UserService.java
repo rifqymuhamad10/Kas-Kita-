@@ -37,7 +37,7 @@ public class UserService {
                 .name(request.getName())
                 .email(request.getEmail())
                 .role(role)
-                .isActive(true)
+                .active(true)
                 .fcmToken(null)
                 .build();
 

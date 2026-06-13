@@ -9,8 +9,9 @@ import org.springframework.context.annotation.DependsOn;
 @Configuration
 public class FirestoreConfig {
 
+    // "firebaseInitializer" is the explicit bean name declared in FirebaseConfig
     @Bean
-    @DependsOn("firebaseConfig") // Pastikan FirebaseApp diinisialisasi lebih dulu
+    @DependsOn("firebaseInitializer")
     public Firestore getFirestore() {
         return FirestoreClient.getFirestore();
     }

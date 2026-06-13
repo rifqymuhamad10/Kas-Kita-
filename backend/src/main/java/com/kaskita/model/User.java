@@ -14,6 +14,7 @@ public class User {
     private String name;
     private String email;
     private String role;
-    private boolean isActive;
+    private boolean active; // Renamed from 'isActive' to avoid Lombok/Firestore getter mismatch
     private String fcmToken;
 }
+

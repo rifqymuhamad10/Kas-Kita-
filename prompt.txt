@@ -1,15 +1,14 @@
-Inisialisasi workspace monorepo untuk proyek "Kas Kita" (Aplikasi Pencatatan Uang Kas Kelas berbasis PWA).
+Sistem, tolong buatkan implementasi Backend (Spring Boot) untuk proses Pendaftaran User (Registrasi) dan Manajemen Session (Autentikasi) berdasarkan spesifikasi dokumen "Kas_Kita_Documentation.docx"[cite: 1].
 
-Spesifikasi teknis utama:
-- Tech Stack: React PWA (Frontend) & Java Spring Boot (Backend).
-- Integrasi Layanan: Firebase (Auth, Firestore, Storage, Cloud Messaging) di kedua sisi.
+Ketentuan Teknis:
+1. Kita menggunakan Firebase Authentication untuk mengelola password & login, namun data profil user dan role harus disimpan di Firebase Firestore (Koleksi `users`).
+2. Buat `com.kaskita.model.dto.RegisterRequest` yang menerima field: `uid`, `name`, `email`, dan `role`.
+3. Buat Auth Controller dengan endpoint `POST /api/v1/auth/register` (Public/PermitAll). Endpoint ini bertugas menerima data setelah user sukses mendaftar di Firebase client, lalu menyimpannya ke koleksi Firestore `users` dengan status `isActive = true`. Secara default, user baru mendapat role 'member' kecuali ditentukan lain.
+4. Buat endpoint `GET /api/v1/auth/me` (Secured). Endpoint ini mengembalikan data profil lengkap user yang saat ini sedang login/session-nya aktif berdasarkan token yang dikirim.
+5. Buat `JwtAuthenticationFilter` (Security Session Handler):
+   - Filter ini harus memotong setiap request ke `/api/v1/**` (kecuali endpoint register).
+   - Membaca Header `Authorization: Bearer <TOKEN>`.
+   - Memvalidasi token tersebut menggunakan Firebase Admin SDK `FirebaseAuth.getInstance().verifyIdToken()`.
+   - Jika valid, ambil UID dan cari data user di Firestore untuk mendapatkan 'role'-nya, lalu masukkan objek Authentication ke `SecurityContextHolder` Spring (Gunakan `Stateless` session policy, karena state session dijaga oleh token Firebase).
 
-Tugas:
-1. Buat struktur folder proyek monorepo dengan memisahkan direktori `backend` dan `frontend`.
-2. Di folder `backend` (Spring Boot Maven), buat boilerplate layered architecture dengan root package `com.kaskita` (terdiri dari sub-package: config, controller, service, repository, model, exception, util).
-3. Di folder `frontend` (React), buat boilerplate struktur React PWA di dalam folder `src/` (terdiri dari sub-folder: components, pages, hooks, services, context, utils, assets).
-4. Buat file konfigurasi dasar:
-   - `pom.xml` untuk backend dengan dependency Spring Web, Spring Security, database/Firestore, dan Firebase Admin SDK.
-   - `package.json` untuk frontend dengan dependency React PWA standard dan Firebase Client SDK.
-
-Catatan: Fokus hanya pada inisialisasi struktur direktori dan konfigurasi dependency dasar. Belum perlu menulis logika bisnis.
+Tuliskan kode Java yang clean, aman dari SQL/NoSQL injection, dan gunakan kustom exception handler jika token kedaluwarsa atau tidak valid.
