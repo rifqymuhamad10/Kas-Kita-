@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import './Dashboard.css';
 
 function MemberDashboard({ user, onLogout }) {
-  const displayName = user?.name || "Siswa";
+  const displayName = user?.name || "Memuat...";
   const displayRole = "SISWA";
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -66,7 +66,7 @@ function MemberDashboard({ user, onLogout }) {
             <div className="sidebar-divider"></div>
             <div className="menu-item logout-btn" onClick={() => setShowLogoutModal(true)}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-              Log Out
+              Keluar
             </div>
           </div>
         </nav>
@@ -117,7 +117,7 @@ function MemberDashboard({ user, onLogout }) {
 
             <div className="summary-card income">
               <div className="card-info">
-                <p className="card-label">Pemasukan (Bulan Ini)</p>
+                <p className="card-label">Pemasukan Bulan Ini</p>
                 <h3 className="card-amount">+Rp {summaryData.income.toLocaleString('id-ID')}</h3>
               </div>
               <div className="card-icon">
@@ -127,7 +127,7 @@ function MemberDashboard({ user, onLogout }) {
 
             <div className="summary-card expense">
               <div className="card-info">
-                <p className="card-label">Pengeluaran (Bulan Ini)</p>
+                <p className="card-label">Pengeluaran Bulan Ini</p>
                 <h3 className="card-amount">-Rp {summaryData.expense.toLocaleString('id-ID')}</h3>
               </div>
               <div className="card-icon">
@@ -143,7 +143,7 @@ function MemberDashboard({ user, onLogout }) {
             <div className="dashboard-card chart-card">
               <div className="card-header-icon">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4318FF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>
-                <h3 className="card-title-new">ALOKASI PENGELUARAN</h3>
+                <h3 className="card-title-new">Alokasi Pengeluaran</h3>
               </div>
               
               <div className="chart-placeholder-new">
@@ -169,7 +169,7 @@ function MemberDashboard({ user, onLogout }) {
               <div className="status-header-new" style={{ marginBottom: '1.5rem' }}>
                 <div className="card-header-icon" style={{ marginBottom: 0 }}>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
-                  <h3 className="card-title-new">TARGET KELAS: {targetData.name.toUpperCase()}</h3>
+                  <h3 className="card-title-new">Target Kelas: {targetData.name}</h3>
                 </div>
                 <div className="ratio-text-new">
                   <span className="ratio-highlight" style={{ color: '#059669', fontSize: '1.3rem' }}>{targetPercentage}%</span>

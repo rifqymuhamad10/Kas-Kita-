@@ -135,7 +135,7 @@ function AdminDashboard({ user, onLogout }) {
 
             <div className="summary-card income">
               <div className="card-info">
-                <p className="card-label">Pemasukan (Bulan Ini)</p>
+                <p className="card-label">Pemasukan Bulan Ini</p>
                 <h3 className="card-amount">+Rp {summaryData.income.toLocaleString('id-ID')}</h3>
               </div>
               <div className="card-icon">
@@ -145,7 +145,7 @@ function AdminDashboard({ user, onLogout }) {
 
             <div className="summary-card expense">
               <div className="card-info">
-                <p className="card-label">Pengeluaran (Bulan Ini)</p>
+                <p className="card-label">Pengeluaran Bulan Ini</p>
                 <h3 className="card-amount">-Rp {summaryData.expense.toLocaleString('id-ID')}</h3>
               </div>
               <div className="card-icon">
@@ -159,7 +159,7 @@ function AdminDashboard({ user, onLogout }) {
             <div className="dashboard-card chart-card">
               <div className="card-header-icon">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4318FF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>
-                <h3 className="card-title-new">ALOKASI PENGELUARAN</h3>
+                <h3 className="card-title-new">Alokasi Pengeluaran</h3>
               </div>
               
               <div className="chart-placeholder-new">
@@ -184,7 +184,7 @@ function AdminDashboard({ user, onLogout }) {
               <div className="status-header-new">
                 <div className="card-header-icon">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4318FF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                  <h3 className="card-title-new">STATUS IURAN KAS</h3>
+                  <h3 className="card-title-new">Status Iuran Kas</h3>
                 </div>
                 <div className="ratio-text-new">
                   <span className="ratio-highlight">6</span> <span className="ratio-total">/ 8 Siswa</span>
