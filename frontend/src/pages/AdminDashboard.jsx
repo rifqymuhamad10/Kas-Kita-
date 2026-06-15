@@ -5,11 +5,11 @@ function AdminDashboard({ user, onLogout }) {
   const displayName = user?.name || "Memuat...";
   const displayRole = user?.role === 'ROLE_ADMIN' ? "BENDAHARA" : "SISWA";
 
-  // State buat ngontrol sidebar buka/tutup di layar kecil
+  // State untuk mengontrol sidebar buka/tutup di layar kecil
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
-  // TAMBAHIN INI BANG: State buat popup logout
+  // State untuk popup logout
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   // --- DUMMY DATA ---
@@ -37,7 +37,7 @@ function AdminDashboard({ user, onLogout }) {
   return (
     <div className="dashboard-layout">
       
-      {/* OVERLAY: Layar redup pas sidebar kebuka di HP/Setengah layar */}
+      {/* OVERLAY: Layar meredup ketika sidebar terbuka di HP/Setengah layar */}
       {isSidebarOpen && <div className="sidebar-overlay" onClick={toggleSidebar}></div>}
 
       {/* --- SIDEBAR --- */}
@@ -45,7 +45,7 @@ function AdminDashboard({ user, onLogout }) {
         
         {/* LOGO SECTION */}
         <div className="sidebar-logo">
-          <div className="logo-box"></div> {/* Kotak logo kosong per request */}
+          <div className="logo-box"></div>
           <div className="logo-text">
             <h2>KasKita</h2>
             <p>MANAGEMENT KAS</p>
@@ -96,7 +96,6 @@ function AdminDashboard({ user, onLogout }) {
         {/* HEADER */}
         <header className="top-header">
           <div className="header-left">
-            {/* Tombol Hamburger buat buka Sidebar (Cuma muncul di layar kecil) */}
             <button className="hamburger-btn" onClick={toggleSidebar}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1e293b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
             </button>
@@ -226,7 +225,6 @@ function AdminDashboard({ user, onLogout }) {
               <button className="btn-see-all">Lihat Semua <span>›</span></button>
             </div>
             
-            {/* Supaya tabel nggak kepotong di HP */}
             <div className="table-responsive">
               <table className="transaction-table">
                 <thead>
@@ -260,7 +258,6 @@ function AdminDashboard({ user, onLogout }) {
               </table>
             </div>
           </div>
-
         </div>
       </main>
 
@@ -281,7 +278,7 @@ function AdminDashboard({ user, onLogout }) {
         </div>
       )}
 
-    </div> /* Ini penutup <div className="dashboard-layout"> */
+    </div> 
   );
 }
 export default AdminDashboard;

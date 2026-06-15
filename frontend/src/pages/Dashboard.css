@@ -10,11 +10,11 @@
 /* ================= SIDEBAR ================= */
 .sidebar {
   width: 240px; 
-  background-color: #1B1B23; /* Dark mode ala desain lu */
-  border-right: 1px solid #272736; /* Border gelap biar gak ngejreng */
+  background-color: #1B1B23; 
+  border-right: 1px solid #272736; 
   display: flex;
   flex-direction: column;
-  padding: 2rem 0 1.5rem 0; /* Padding kiri-kanan dihapus biar menu nempel ujung kiri */
+  padding: 2rem 0 1.5rem 0; 
   flex-shrink: 0; 
   transition: all 0.3s ease;
   overflow: hidden;
@@ -34,7 +34,7 @@
   align-items: center;
   gap: 0.8rem;
   margin-bottom: 2.5rem;
-  padding: 0 1.5rem; /* Padding balikin ke sini */
+  padding: 0 1.5rem; 
 }
 
 .logo-box {
@@ -78,9 +78,9 @@
 
 .menu-item {
   padding: 0.9rem 1.5rem 0.9rem 2rem; 
-  margin-right: 1.5rem; /* Biar ngebentuk lengkungan di kanan */
+  margin-right: 1.5rem; 
   border-radius: 0 12px 12px 0;
-  color: #94a3b8; /* Abu-abu kebiruan */
+  color: #94a3b8; 
   font-size: 0.95rem;
   font-weight: 500;
   cursor: pointer;
@@ -98,10 +98,9 @@
   color: #cbd5e1;
 }
 
-/* Styling Khusus Menu Aktif */
 .menu-item.active {
-  background-color: #242436; /* Background abu-abu gelap */
-  color: #605bff; /* Ungu terang */
+  background-color: #242436; 
+  color: #605bff; 
   position: relative;
 }
 
@@ -112,7 +111,7 @@
   top: 15%;
   height: 70%;
   width: 4px;
-  background-color: #605bff; /* Garis vertikal di kiri */
+  background-color: #605bff; 
   border-radius: 0 4px 4px 0;
 }
 
@@ -130,7 +129,7 @@
 }
 
 .logout-btn {
-  color: #f43f5e; /* Merah */
+  color: #f43f5e; 
   background-color: transparent;
 }
 
@@ -176,7 +175,7 @@
 
   .sidebar.closed {
     width: 240px;
-    padding: 2rem 0 1.5rem 0; /* Tetap pertahankan layout ini saat tertutup di HP */
+    padding: 2rem 0 1.5rem 0; 
     transform: translateX(-100%); 
   }
 
@@ -213,9 +212,9 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5); /* Latar belakang hitam transparan */
-  backdrop-filter: blur(4px); /* Efek blur ala Apple */
-  z-index: 9999; /* Pastikan selalu paling depan */
+  background-color: rgba(0, 0, 0, 0.5); 
+  backdrop-filter: blur(4px); 
+  z-index: 9999; 
   display: flex;
   justify-content: center;
   align-items: center;
@@ -295,7 +294,6 @@
   transform: translateY(-2px);
 }
 
-/* Animasi Muncul Popup */
 @keyframes fadeInModal {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -674,8 +672,8 @@
   width: 45px;
   height: 45px;
   border-radius: 50%;
-  background-color: #f5f3ff; /* Background ungu super muda */
-  color: #4318FF; /* Warna teks inisial ungu tegas */
+  background-color: #f5f3ff; 
+  color: #4318FF; 
   display: flex;
   justify-content: center;
   align-items: center;
