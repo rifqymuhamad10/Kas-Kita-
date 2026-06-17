@@ -1,12 +1,13 @@
 package com.kaskita.controller;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseToken;
 import com.kaskita.model.User;
 import com.kaskita.model.dto.RegisterRequest;
 import com.kaskita.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -32,18 +33,53 @@ public class AuthController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<?> getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Not authenticated");
+    public ResponseEntity<?> getCurrentUser(HttpServletRequest request) {
+        // Filter dilewati untuk /me, jadi kita verifikasi token Firebase secara manual
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token tidak ditemukan. Silakan login terlebih dahulu.");
         }
-        
-        Object principal = authentication.getPrincipal();
-        if (principal instanceof User) {
-            return ResponseEntity.ok((User) principal);
+
+        String token = authHeader.substring(7);
+        try {
+            FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(token);
+            String uid = decodedToken.getUid();
+
+            User user = userService.getUserByUid(uid);
+            if (user == null) {
+                // User Firebase Auth ada tapi belum ada di Firestore → auto-register dengan data dari token
+                String nameFromToken = decodedToken.getName();
+                String emailFromToken = decodedToken.getEmail();
+                if (nameFromToken == null || nameFromToken.isEmpty()) {
+                    nameFromToken = emailFromToken != null ? emailFromToken.split("@")[0] : "User";
+                }
+
+                RegisterRequest autoRegisterReq = new RegisterRequest();
+                autoRegisterReq.setUid(uid);
+                autoRegisterReq.setName(nameFromToken);
+                autoRegisterReq.setEmail(emailFromToken);
+                autoRegisterReq.setRole("ROLE_MEMBER"); // Default role
+
+                user = userService.registerUser(autoRegisterReq);
+            }
+            if (!user.isActive()) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("Akun Anda tidak aktif. Hubungi administrator.");
+            }
+
+            // Standardisasi role
+            String role = user.getRole();
+            if (role == null || role.isEmpty()) {
+                role = "ROLE_MEMBER";
+            } else if (!role.startsWith("ROLE_")) {
+                role = "ROLE_" + role.toUpperCase();
+            }
+            user.setRole(role);
+
+            return ResponseEntity.ok(user);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Token tidak valid: " + e.getMessage());
         }
-        
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Principal is not a valid User object");
     }
 }

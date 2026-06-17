@@ -35,7 +35,7 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/v1/auth/register").permitAll()
+                .requestMatchers("/api/v1/auth/register", "/api/v1/auth/me").permitAll() // Mengizinkan registrasi dan profil tanpa blokir 403
                 .requestMatchers("/api/v1/**").authenticated()
                 .anyRequest().permitAll() // Allow other endpoints like actuator, swagger if needed
             )

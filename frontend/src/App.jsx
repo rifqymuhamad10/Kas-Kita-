@@ -34,7 +34,7 @@ function App() {
             displayName = profile.name || displayName;
             console.log("Profile fetched successfully from backend. Role:", role);
           } else {
-            throw new Error(`Failed to fetch profile. Status: ${meRes.status}`);
+            throw new Error(`Gagal ambil profil. Status: ${meRes.status}`);
           }
 
           const userObj = {

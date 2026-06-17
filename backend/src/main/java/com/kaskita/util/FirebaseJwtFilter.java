@@ -33,6 +33,13 @@ public class FirebaseJwtFilter extends OncePerRequestFilter {
     }
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+        // Skip filter untuk endpoint publik agar controller yang handle sendiri
+        return path.equals("/api/v1/auth/register") || path.equals("/api/v1/auth/me");
+    }
+
+    @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
             
@@ -52,8 +59,12 @@ public class FirebaseJwtFilter extends OncePerRequestFilter {
             // Cari data user di Firestore
             User user = userService.getUserByUid(uid);
             
-            if (user == null || !user.isActive()) {
-                throw new Exception("User record not found in database or is inactive.");
+            if (user == null) {
+                throw new Exception("User belum terdaftar di sistem. Silakan daftar terlebih dahulu.");
+            }
+            
+            if (!user.isActive()) {
+                throw new Exception("Akun Anda tidak aktif. Hubungi administrator.");
             }
 
             // Role dari Firestore
