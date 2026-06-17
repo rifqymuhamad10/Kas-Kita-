@@ -1,340 +1,573 @@
-/* ================================================
-   Dashboard Page — Manga Instructional Comic Style
-   ================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=JetBrains+Mono:wght@700&display=swap');
 
-.dashboard-page {
-  min-height: 100vh;
-  background-color: #FFFFFF;
-  color: #000000;
-  font-family: 'JetBrains Mono', monospace;
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  position: relative;
-  overflow-x: hidden;
+/* ================= MANGA DESIGN SYSTEM VARIABLES ================= */
+:root {
+  --manga-white: #FFFFFF;
+  --manga-ink: #1A1A1A;
+  --manga-tone: #CCCCCC;
+  --semantic-red: #D32F2F;
+  --font-manga: 'Comic Neue', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --speed-line: repeating-linear-gradient(45deg, #1a1a1a, transparent 2px, transparent 15px);
+  --screentone: radial-gradient(circle, #CCCCCC 1px, transparent 1.5px);
 }
 
-/* Halftone overlay pattern */
-.dashboard-page::before {
-  content: "";
-  position: fixed;
+/* ================= BASE STYLES ================= */
+.manga-theme {
+  font-family: var(--font-manga);
+  background-color: var(--manga-white);
+  /* Screentone background for the entire app */
+  background-image: var(--screentone);
+  background-size: 8px 8px;
+  color: var(--manga-ink);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.dashboard-layout {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+/* ================= MANGA COMPONENTS ================= */
+/* Sharp borders, 2px stroke, subtle solid shadow */
+.manga-panel {
+  background-color: var(--manga-white);
+  border: 2px solid var(--manga-ink);
+  box-shadow: 4px 4px 0 var(--manga-ink);
+  border-radius: 4px;
+}
+
+.manga-box {
+  background-color: var(--manga-white);
+  border: 2px solid var(--manga-ink);
+  border-radius: 4px;
+}
+
+.manga-border {
+  border: 2px solid var(--manga-ink);
+}
+
+.manga-ink-bg {
+  background-color: var(--manga-ink);
+  color: var(--manga-white);
+}
+
+.manga-white-bg {
+  background-color: var(--manga-white);
+  color: var(--manga-ink);
+}
+
+.text-semantic-red {
+  color: var(--semantic-red) !important;
+}
+
+.mono-text {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.impact-text {
+  font-size: 2rem !important;
+  font-weight: 800 !important;
+  text-shadow: 2px 2px 0 var(--manga-tone);
+  transform: skewX(-5deg);
+}
+
+.bg-white-highlight {
+  background-color: var(--manga-white);
+  padding: 0.2rem 0.5rem;
+  border: 1px solid var(--manga-ink);
+}
+
+.relative-z {
+  position: relative;
+  z-index: 2;
+}
+
+/* ================= SIDEBAR ================= */
+.sidebar {
+  width: 260px; 
+  display: flex;
+  flex-direction: column;
+  padding: 2rem 0 1.5rem 0; 
+  flex-shrink: 0; 
+  transition: all 0.3s ease;
+  overflow: hidden;
+  white-space: nowrap; 
+  margin: 1rem; /* Margins to make it look like a floating comic panel */
+  height: calc(100vh - 2rem);
+}
+
+.sidebar.closed {
+  width: 0;
+  padding: 0;
+  margin: 0;
+  border: none;
+  opacity: 0;
+}
+
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 2.5rem;
+  padding: 0 1.5rem; 
+}
+
+.logo-box {
+  width: 36px;
+  height: 36px;
+  background-color: var(--manga-ink);
+  border: 2px solid var(--manga-ink);
+}
+
+.logo-text h2 {
+  font-size: 1.5rem;
+  margin: 0;
+  font-weight: 800;
+}
+
+.logo-text p {
+  font-size: 0.7rem;
+  margin: 0;
+  font-weight: 700;
+}
+
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex-grow: 1; 
+  padding: 0 1rem;
+}
+
+.menu-item {
+  padding: 0.8rem 1rem; 
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border: 2px solid transparent;
+}
+
+.menu-item:hover {
+  border: 2px solid var(--manga-ink);
+  transform: translateX(4px);
+}
+
+/* Active Menu - Comic Clipping Path */
+.menu-item.active {
+  background-color: var(--manga-ink); 
+  color: var(--manga-white); 
+  border: 2px solid var(--manga-ink);
+  clip-path: polygon(0 0, 100% 0, 95% 100%, 0% 100%);
+}
+
+.sidebar-bottom {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-divider {
+  height: 2px;
+  background-color: var(--manga-ink);
+  margin: 1.5rem 0 1rem 0;
+}
+
+.logout-btn {
+  color: var(--manga-ink); 
+}
+.logout-btn:hover {
+  color: var(--semantic-red);
+  border-color: var(--semantic-red);
+}
+
+/* ================= MAIN CONTENT & HEADER ================= */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto; 
+  padding: 1rem 1rem 1rem 0;
+}
+
+.top-header {
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  position: sticky;
   top: 0;
-  left: 0;
+  z-index: 10;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.hamburger-btn {
+  display: none; 
+  background: var(--manga-white);
+  border: 2px solid var(--manga-ink);
+  padding: 0.2rem;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 var(--manga-ink);
+}
+
+.page-title {
+  font-size: 1.8rem;
+  margin: 0;
+  font-weight: 800;
+  border-bottom: 4px solid var(--manga-ink);
+}
+
+.profile-wrapper {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+}
+
+.profile-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.profile-name {
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.profile-role {
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+/* ================= CONTENT AREA ================= */
+.content-area {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* --- ASYMMETRIC GRID (No 3-equal columns) --- */
+.summary-cards-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr; /* 2:1:1 Asymmetric Ratio */
+  gap: 1.5rem;
+}
+
+.summary-card {
+  padding: 1.5rem; 
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  position: relative;
+  overflow: hidden;
+}
+
+.speed-lines-bg::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0; bottom: 0; left: 0;
+  background-image: var(--speed-line);
+  opacity: 0.2;
+  z-index: 1;
+  transform: scale(1.5); /* Extend to avoid clipping on tilt */
+}
+
+.card-label {
+  font-size: 1rem;
+  margin: 0 0 0.5rem 0;
+  font-weight: 800;
+  display: inline-block;
+}
+
+.card-amount {
+  font-size: 1.6rem;
+  font-weight: 800; 
+  margin: 0;
+  display: inline-block;
+}
+
+/* ================= ROW 2: CHART & STATUS ================= */
+.grid-row-2 {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.dashboard-card {
+  padding: 1.8rem;
+}
+
+.chart-card { flex: 4; }
+.status-card { flex: 6; }
+
+.screentone-bg {
+  background-image: var(--screentone);
+  background-size: 10px 10px;
+}
+
+.border-box {
+  border: 2px solid var(--manga-ink);
+  padding: 1.5rem;
+  background-color: var(--manga-white);
+  margin-top: 1rem;
+}
+
+.card-title-new {
+  font-size: 1.2rem;
+  margin: 0;
+  font-weight: 800;
+}
+
+/* Halftone Donut Chart */
+.chart-placeholder-new {
+  display: flex;
+  align-items: center;
+  gap: 2.5rem;
+}
+
+.donut-wrapper {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.manga-donut {
   width: 100%;
   height: 100%;
-  pointer-events: none;
-  background-image: radial-gradient(circle, #E5E5E5 1px, transparent 1px);
-  background-size: 16px 16px;
-  opacity: 0.3;
-  z-index: 0;
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--manga-ink) 0% 27%, 
+    var(--manga-tone) 27% 50%, 
+    repeating-linear-gradient(45deg, var(--manga-ink) 0px, var(--manga-white) 2px, var(--manga-ink) 4px) 50% 94%, 
+    var(--manga-white) 94% 100%
+  );
+  border: 2px solid var(--manga-ink);
+  mask: radial-gradient(transparent 50%, black 51%);
+  -webkit-mask: radial-gradient(transparent 50%, black 51%);
 }
 
-/* Header bar */
-.dashboard-header {
-  position: relative;
-  z-index: 10;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border: 3px solid #000000;
-  padding: 1rem 1.5rem;
-  background: #FFFFFF;
-  box-shadow: 4px 4px 0 #000000;
-}
-
-.brand-section {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.brand-logo {
-  font-weight: 800;
-  font-size: 1.5rem;
-  letter-spacing: -1px;
-  border: 2px solid #000000;
-  padding: 0.2rem 0.6rem;
-  background: #000000;
-  color: #FFFFFF;
-  transform: rotate(-2deg);
-}
-
-.brand-title {
-  font-weight: 700;
-  font-size: 1.25rem;
-}
-
-.user-nav-actions {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.user-badge {
-  font-size: 0.85rem;
-  font-weight: bold;
-  border: 2px solid #000000;
-  padding: 0.3rem 0.6rem;
-  background: #CCCCCC;
-}
-
-.btn-logout {
-  font-family: 'JetBrains Mono', monospace;
-  font-weight: 700;
-  background: #FFFFFF;
-  color: #000000;
-  border: 2px solid #000000;
-  padding: 0.3rem 0.8rem;
-  cursor: pointer;
-  box-shadow: 2px 2px 0 #000000;
-  transition: transform 0.1s, box-shadow 0.1s;
-}
-
-.btn-logout:hover {
-  transform: translate(-1px, -1px);
-  box-shadow: 3px 3px 0 #000000;
-}
-
-.btn-logout:active {
-  transform: translate(1px, 1px);
-  box-shadow: 1px 1px 0 #000000;
-}
-
-/* Asymmetric Main Grid */
-.dashboard-grid {
-  position: relative;
-  z-index: 10;
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 2rem;
-  max-width: 1280px;
-  margin: 0 auto;
-  width: 100%;
-}
-
-@media (max-width: 992px) {
-  .dashboard-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* Comic Panel Containers */
-.comic-panel {
-  background: #FFFFFF;
-  border: 3px solid #000000;
-  padding: 1.5rem;
-  box-shadow: 6px 6px 0 #000000;
-  position: relative;
+.donut-inner-text {
+  position: absolute;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-}
-
-/* Panel Titles styling like Manga sound effects / Titles */
-.panel-title {
-  font-size: 1.25rem;
-  font-weight: 800;
-  border-bottom: 3px double #000000;
-  padding-bottom: 0.5rem;
-  margin-bottom: 0.5rem;
-  display: flex;
-  justify-content: space-between;
   align-items: center;
 }
 
-.panel-sfx {
-  background: #000000;
-  color: #FFFFFF;
-  font-size: 0.75rem;
-  padding: 0.1rem 0.4rem;
-  transform: skewX(-10deg);
-  font-weight: bold;
-}
+.donut-label { font-size: 0.7rem; font-weight: 700; }
+.donut-value { font-size: 1rem; font-weight: 800; }
 
-/* Overview Panel Info card */
-.overview-stats {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-
-@media (max-width: 576px) {
-  .overview-stats {
-    grid-template-columns: 1fr;
-  }
-}
-
-.stat-box {
-  border: 2px solid #000000;
-  padding: 1rem;
-  background: #FFFFFF;
-  box-shadow: 3px 3px 0 #000000;
-}
-
-.stat-box.highlight {
-  background: #CCCCCC;
-}
-
-.stat-label {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: #555555;
-  margin-bottom: 0.5rem;
-}
-
-.stat-value {
-  font-size: 1.5rem;
-  font-weight: 800;
-}
-
-/* Transaction List styling */
-.transaction-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  max-height: 350px;
-  overflow-y: auto;
-  padding-right: 0.5rem;
-}
-
-.transaction-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border: 2px solid #000000;
-  padding: 0.75rem;
-  background: #FFFFFF;
-  box-shadow: 2px 2px 0 #000000;
-}
-
-.trans-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.trans-desc {
-  font-weight: 700;
-  font-size: 0.95rem;
-}
-
-.trans-date {
-  font-size: 0.75rem;
-  color: #666666;
-}
-
-.trans-amount {
-  font-weight: 800;
-  font-size: 1.1rem;
-}
-
-.trans-amount.income {
-  color: #008800;
-}
-
-.trans-amount.expense {
-  color: #CC0000;
-}
-
-/* Form inputs for new transaction */
-.form-comic {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.form-row {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
-
-.form-label {
-  font-weight: 700;
-  font-size: 0.85rem;
-}
-
-.form-input {
-  border: 2px solid #000000;
-  padding: 0.5rem;
-  font-family: 'JetBrains Mono', monospace;
+.chart-legend-new p {
   font-size: 0.9rem;
-  outline: none;
-}
-
-.form-input:focus {
-  background-color: #F5F5F5;
-  border-color: #000000;
-  box-shadow: 2px 2px 0 #000000;
-}
-
-.form-radio-group {
-  display: flex;
-  gap: 1rem;
-}
-
-.radio-label {
+  font-weight: 700;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.radio-label input {
-  cursor: pointer;
-}
-
-.btn-comic-submit {
-  font-family: 'JetBrains Mono', monospace;
-  font-weight: 800;
-  font-size: 1rem;
-  background: #000000;
-  color: #FFFFFF;
-  border: 2px solid #000000;
-  padding: 0.75rem;
-  cursor: pointer;
-  box-shadow: 4px 4px 0 #CCCCCC;
-  transition: transform 0.1s, box-shadow 0.1s;
-  text-align: center;
-  margin-top: 0.5rem;
-}
-
-.btn-comic-submit:hover {
-  transform: translate(-1px, -1px);
-  box-shadow: 5px 5px 0 #CCCCCC;
-}
-
-.btn-comic-submit:active {
-  transform: translate(1px, 1px);
-  box-shadow: 3px 3px 0 #CCCCCC;
-}
-
-.btn-comic-submit:disabled {
-  background: #CCCCCC;
-  color: #666666;
-  border-color: #999999;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
-/* Alert styles */
-.dashboard-alert {
-  border: 2px solid #000000;
-  padding: 0.75rem;
-  font-weight: 700;
-  font-size: 0.85rem;
+  gap: 0.6rem;
   margin-bottom: 0.5rem;
 }
 
-.dashboard-alert.success {
-  background: #DDFFDD;
-  color: #006600;
+.dot {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--manga-ink);
+}
+.dot.fill-black { background-color: var(--manga-ink); }
+.dot.fill-grey { background-color: var(--manga-tone); }
+.dot.fill-stripe { background: repeating-linear-gradient(45deg, var(--manga-ink) 0px, var(--manga-white) 2px, var(--manga-ink) 4px); }
+.dot.border-only { background-color: var(--manga-white); }
+
+/* Status Kas */
+.status-header-new {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
 }
 
-.dashboard-alert.error {
-  background: #FFDDDD;
-  color: #CC0000;
+.ratio-text-new {
+  padding: 0.4rem 0.8rem;
+  font-weight: 800;
+}
+
+.progress-bar-container-new {
+  width: 100%;
+  height: 14px;
+  margin-bottom: 2rem;
+  overflow: hidden;
+}
+
+.progress-fill-new {
+  height: 100%;
+  border-right: 2px solid var(--manga-ink);
+}
+
+.student-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr); 
+  gap: 1rem;
+}
+
+.student-card-new {
+  padding: 1rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  box-shadow: 2px 2px 0 var(--manga-ink); /* Hard shadow */
+}
+
+.student-avatar-initial {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.badge-new {
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  font-weight: 800;
+  border: 1px solid var(--manga-ink);
+}
+
+.see-all-card {
+  background-color: var(--manga-ink);
+  color: var(--manga-white);
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* ================= ROW 3: TABLE ================= */
+.table-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.table-header-container {
+  padding: 1.5rem;
+  border-bottom: 3px solid var(--manga-ink);
+}
+
+.transaction-title {
+  font-size: 1.2rem;
+  font-weight: 800;
+  margin: 0;
+}
+
+.transaction-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.transaction-table th {
+  text-align: left;
+  padding: 1rem 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 800;
+  border-bottom: 2px solid var(--manga-ink);
+  background-color: var(--manga-tone);
+}
+
+.transaction-table td {
+  padding: 1.2rem 1.5rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  border-bottom: 1px solid var(--manga-ink);
+}
+
+.cat-badge {
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  box-shadow: 2px 2px 0 var(--manga-ink);
+}
+
+/* ================= POPUP / MODAL ================= */
+.modal-overlay-custom {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background-color: rgba(26, 26, 26, 0.8); 
+  z-index: 9999; 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.action-burst {
+  clip-path: polygon(5% 0, 100% 0, 95% 100%, 0% 100%); /* Angled panel shape */
+  padding: 3rem;
+  transform: skewX(5deg);
+}
+
+.action-burst > * {
+  transform: skewX(-5deg); /* Counter skew for text */
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.manga-btn {
+  flex: 1;
+  padding: 1rem;
+  font-family: var(--font-manga);
+  font-size: 1.2rem;
+  font-weight: 800;
+  cursor: pointer;
+  border: 2px solid var(--manga-ink);
+  background-color: var(--manga-white);
+  box-shadow: 4px 4px 0 var(--manga-ink);
+  transition: all 0.1s;
+}
+
+.manga-btn:active {
+  box-shadow: 0 0 0 var(--manga-ink);
+  transform: translate(4px, 4px);
+}
+
+.manga-btn.active {
+  background-color: var(--semantic-red);
+  color: var(--manga-white);
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 1024px) {
+  .hamburger-btn { display: block; }
+  .desktop-hide { display: block; }
+  
+  .sidebar {
+    position: fixed;
+    height: calc(100vh - 2rem);
+    z-index: 100;
+    transform: translateX(-120%); 
+    opacity: 1; 
+  }
+  .sidebar.open { transform: translateX(0); }
+  
+  .summary-cards-row {
+    grid-template-columns: 1fr; /* Stack on mobile */
+  }
+  .grid-row-2 { flex-direction: column; }
+  .chart-placeholder-new { flex-direction: column; }
 }
