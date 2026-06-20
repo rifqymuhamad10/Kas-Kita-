@@ -65,6 +65,19 @@ function AdminDashboard({ user, onLogout }) {
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle></svg>
             TARGET
           </div>
+          <div className="menu-item">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square" strokeLinejoin="miter">
+              <path d="M22 19H2V5h5l2 3h13v11z"></path>
+            </svg>
+            KATEGORI
+          </div>
+          <div className="menu-item">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square" strokeLinejoin="miter">
+              <rect x="2" y="6" width="20" height="12"></rect>
+              <path d="M18 10h4v4h-4z"></path>
+            </svg>
+            DOMPET
+          </div>
           
           <div className="sidebar-bottom">
             <div className="sidebar-divider"></div>
