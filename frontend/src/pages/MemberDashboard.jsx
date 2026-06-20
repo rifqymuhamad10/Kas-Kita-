@@ -43,30 +43,30 @@ function MemberDashboard({ user, onLogout }) {
         <div className="sidebar-logo">
           <div className="logo-box"></div>
           <div className="logo-text">
-            <h2 className="impact-text" style={{ fontSize: '1.5rem' }}>KasKita</h2>
-            <p className="mono-text">MANAGEMENT KAS</p>
+            <h2>KASKITA</h2>
+            <p>MANAGEMENT</p>
           </div>
         </div>
         
         <nav className="sidebar-menu">
           <div className="menu-item active">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-            Dashboard
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            DASHBOARD
           </div>
           <div className="menu-item">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-            Transaksi
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+            TRANSAKSI
           </div>
           <div className="menu-item">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
-            Target Kelas
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle></svg>
+            TARGET KELAS
           </div>
           
           <div className="sidebar-bottom">
             <div className="sidebar-divider"></div>
             <div className="menu-item logout-btn" onClick={() => setShowLogoutModal(true)}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-              Log Out
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+              LOG OUT
             </div>
           </div>
         </nav>
@@ -76,26 +76,19 @@ function MemberDashboard({ user, onLogout }) {
       <main className="main-content">
         
         {/* HEADER */}
-        <header className="top-header manga-white-bg">
+        <header className="top-header manga-panel">
           <div className="header-left">
             <button className="hamburger-btn" onClick={toggleSidebar}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1A1A1A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" strokeWidth="3" strokeLinecap="square"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
             </button>
-            <h1 className="page-title">Dashboard</h1>
+            <h1 className="page-title">CHAPTER 1: DASHBOARD</h1>
           </div>
           
           <div className="header-controls">
-            <div className="icon-btn manga-border" style={{ padding: '0.5rem', borderRadius: '4px' }}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1A1A1A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-            </div>
-            <div className="header-divider"></div>
-            <div className="profile-wrapper manga-border" style={{ borderRadius: '4px' }}>
-              <div className="header-avatar manga-border" style={{ borderRadius: '50%', overflow: 'hidden' }}>
-                <img src={`https://ui-avatars.com/api/?name=${displayName}&background=CCCCCC&color=1A1A1A&bold=true`} alt="Profile" />
-              </div>
+            <div className="profile-wrapper manga-box">
               <div className="profile-text">
-                <span className="profile-name">{displayName}</span>
-                <span className="profile-role mono-text">{displayRole}</span>
+                <span className="profile-name">{displayName.toUpperCase()}</span>
+                <span className="profile-role">{displayRole}</span>
               </div>
             </div>
           </div>
@@ -103,35 +96,26 @@ function MemberDashboard({ user, onLogout }) {
 
         <div className="content-area">
           
-          {/* BARIS 1: SUMMARY CARDS */}
+          {/* BARIS 1: ASYMMETRIC GRID */}
           <div className="summary-cards-row">
-            <div className="summary-card balance manga-panel manga-ink-bg speed-lines-bg">
+            <div className="summary-card balance manga-panel speed-lines-bg">
               <div className="card-info relative-z">
-                <p className="card-label">Total Saldo</p>
-                <h3 className="card-amount mono-text">Rp {summaryData.balance.toLocaleString('id-ID')}</h3>
-              </div>
-              <div className="card-icon relative-z">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
+                <p className="card-label bg-white-highlight">TOTAL SALDO</p>
+                <h3 className="card-amount impact-text bg-white-highlight">Rp {summaryData.balance.toLocaleString('id-ID')}</h3>
               </div>
             </div>
 
             <div className="summary-card income manga-panel">
               <div className="card-info">
-                <p className="card-label">Pemasukan (Bulan Ini)</p>
-                <h3 className="card-amount mono-text">+Rp {summaryData.income.toLocaleString('id-ID')}</h3>
-              </div>
-              <div className="card-icon">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1A1A1A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+                <p className="card-label">PEMASUKAN</p>
+                <h3 className="card-amount">Rp {summaryData.income.toLocaleString('id-ID')}</h3>
               </div>
             </div>
 
             <div className="summary-card expense manga-panel">
               <div className="card-info">
-                <p className="card-label">Pengeluaran (Bulan Ini)</p>
-                <h3 className="card-amount mono-text text-semantic-red">-Rp {summaryData.expense.toLocaleString('id-ID')}</h3>
-              </div>
-              <div className="card-icon">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#D32F2F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/></svg>
+                <p className="card-label">PENGELUARAN</p>
+                <h3 className="card-amount text-semantic-red">Rp {summaryData.expense.toLocaleString('id-ID')}</h3>
               </div>
             </div>
           </div>
@@ -140,54 +124,48 @@ function MemberDashboard({ user, onLogout }) {
           <div className="grid-row-2">
             
             {/* Kiri: Chart Donut */}
-            <div className="dashboard-card chart-card manga-panel">
-              <div className="card-header-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1A1A1A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>
-                <h3 className="card-title-new">ALOKASI PENGELUARAN</h3>
-              </div>
+            <div className="dashboard-card chart-card manga-panel screentone-bg">
+              <h3 className="card-title-new bg-white-highlight inline-block">ALOKASI PENGELUARAN</h3>
               
-              <div className="chart-placeholder-new">
+              <div className="chart-placeholder-new bg-white-highlight border-box">
                 <div className="donut-wrapper">
-                  <div className="manga-donut"></div>
+                  <div className="donut-chart-css manga-donut"></div>
                   <div className="donut-inner-text">
-                    <span className="donut-label">Terbesar</span>
-                    <span className="donut-value">Konsumsi</span>
+                    <span className="donut-label">TERBESAR</span>
+                    <span className="donut-value">KONSUMSI</span>
                   </div>
                 </div>
                 
                 <div className="chart-legend-new">
-                  <p><span className="dot fill-black"></span> Konsumsi (27%)</p>
-                  <p><span className="dot fill-grey"></span> Admin (23%)</p>
-                  <p><span className="dot fill-stripe"></span> Dekor (44%)</p>
-                  <p><span className="dot border-only"></span> Lainnya (6%)</p>
+                  <p><span className="dot fill-black"></span> KONSUMSI (27%)</p>
+                  <p><span className="dot fill-grey"></span> ADMIN (23%)</p>
+                  <p><span className="dot fill-stripe"></span> DEKOR (44%)</p>
+                  <p><span className="dot border-only"></span> LAINNYA (6%)</p>
                 </div>
               </div>
             </div>
 
             {/* Kanan: Status Target Kelas */}
-            <div className="dashboard-card status-card manga-panel" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-              <div className="status-header-new" style={{ marginBottom: '1.5rem' }}>
-                <div className="card-header-icon" style={{ marginBottom: 0 }}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1A1A1A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
-                  <h3 className="card-title-new">TARGET KELAS: {targetData.name.toUpperCase()}</h3>
-                </div>
-                <div className="ratio-text-new manga-border mono-text">
-                  <span className="ratio-highlight" style={{ fontSize: '1.3rem' }}>{targetPercentage}%</span>
+            <div className="dashboard-card status-card manga-panel" style={{ display: 'flex', flexDirection: 'column', justifyItems: 'center', justifyContent: 'center' }}>
+              <div className="status-header-new">
+                <h3 className="card-title-new">TARGET KELAS: {targetData.name.toUpperCase()}</h3>
+                <div className="ratio-text-new manga-box">
+                  <span className="ratio-highlight" style={{ fontSize: '1.2rem' }}>{targetPercentage}%</span>
                 </div>
               </div>
               
               <div className="progress-bar-container-new manga-border">
-                <div className="progress-fill-new" style={{ width: `${targetPercentage}%`, backgroundColor: '#1A1A1A' }}></div>
+                <div className="progress-fill-new manga-ink-bg" style={{ width: `${targetPercentage}%` }}></div>
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem 0' }}>
                 <div>
-                  <p className="mono-text" style={{ margin: 0, fontSize: '0.8rem', fontWeight: 700 }}>Terkumpul</p>
-                  <h4 className="mono-text" style={{ margin: '4px 0 0 0', fontSize: '1.2rem', fontWeight: 800 }}>Rp {targetData.collected.toLocaleString('id-ID')}</h4>
+                  <p className="mono-text" style={{ margin: 0, fontSize: '0.9rem', fontWeight: 700 }}>TERKUMPUL</p>
+                  <h4 className="mono-text" style={{ margin: '4px 0 0 0', fontSize: '1.2rem', fontWeight: 800 }}>RP {targetData.collected.toLocaleString('id-ID')}</h4>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <p className="mono-text" style={{ margin: 0, fontSize: '0.8rem', fontWeight: 700 }}>Goal Target</p>
-                  <h4 className="mono-text" style={{ margin: '4px 0 0 0', fontSize: '1.2rem', fontWeight: 800 }}>Rp {targetData.goal.toLocaleString('id-ID')}</h4>
+                  <p className="mono-text" style={{ margin: 0, fontSize: '0.9rem', fontWeight: 700 }}>GOAL TARGET</p>
+                  <h4 className="mono-text" style={{ margin: '4px 0 0 0', fontSize: '1.2rem', fontWeight: 800 }}>RP {targetData.goal.toLocaleString('id-ID')}</h4>
                 </div>
               </div>
               
@@ -197,21 +175,17 @@ function MemberDashboard({ user, onLogout }) {
           {/* ROW 3: TRANSAKSI TERBARU */}
           <div className="table-card manga-panel">
             <div className="table-header-container">
-              <h3 className="transaction-title">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1A1A1A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-                Transaksi Terbaru
-              </h3>
-              <button className="btn-see-all manga-btn" style={{ flex: 'none', boxShadow: 'none', fontSize: '0.9rem', padding: '0.5rem 1rem' }}>Lihat Semua <span>›</span></button>
+              <h3 className="transaction-title">HISTORI TRANSAKSI</h3>
             </div>
             
             <div className="table-responsive">
               <table className="transaction-table">
                 <thead>
                   <tr>
-                    <th>Tanggal</th>
-                    <th>Kategori</th>
-                    <th>Keterangan</th>
-                    <th>Jumlah</th>
+                    <th>TANGGAL</th>
+                    <th>KATEGORI</th>
+                    <th>KETERANGAN</th>
+                    <th>JUMLAH</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -219,17 +193,13 @@ function MemberDashboard({ user, onLogout }) {
                     <tr key={tx.id}>
                       <td className="col-date mono-text">{tx.date}</td>
                       <td>
-                        <span className={`cat-badge ${
-                          tx.category === 'Uang Kas' ? 'fill-black manga-ink-bg' : 
-                          tx.category === 'Konsumsi' ? 'fill-grey' : 
-                          tx.category === 'Administrasi' ? 'fill-stripe' : 'border-only'
-                        }`}>
-                          {tx.category}
+                        <span className="cat-badge manga-box">
+                          {tx.category.toUpperCase()}
                         </span>
                       </td>
-                      <td className="col-desc">{tx.desc}</td>
-                      <td className={tx.type === 'INCOME' ? 'mono-text' : 'mono-text text-semantic-red'}>
-                        {tx.type === 'INCOME' ? '+Rp ' : '-Rp '}{tx.amount.toLocaleString('id-ID')}
+                      <td className="col-desc">{tx.desc.toUpperCase()}</td>
+                      <td className={`mono-text ${tx.type === 'INCOME' ? '' : 'text-semantic-red'}`}>
+                        {tx.type === 'INCOME' ? '+RP ' : '-RP '}{tx.amount.toLocaleString('id-ID')}
                       </td>
                     </tr>
                   ))}
@@ -244,15 +214,12 @@ function MemberDashboard({ user, onLogout }) {
       {/* --- POPUP KONFIRMASI LOGOUT --- */}
       {showLogoutModal && (
         <div className="modal-overlay-custom">
-          <div className="modal-box manga-panel action-burst manga-white-bg">
-            <div className="modal-icon-warning text-semantic-red">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-            </div>
-            <h3 className="modal-title impact-text" style={{ fontSize: '1.4rem' }}>Konfirmasi Keluar</h3>
-            <p className="modal-text">Apakah Anda yakin ingin keluar dari aplikasi KasKita?</p>
+          <div className="modal-box manga-panel action-burst">
+            <h3 className="modal-title impact-text">YAKIN MAU KELUAR?!</h3>
+            <p className="modal-text">Kamu harus login lagi nanti!</p>
             <div className="modal-actions">
-              <button className="btn-modal-cancel manga-btn" onClick={() => setShowLogoutModal(false)}>Batal</button>
-              <button className="btn-modal-confirm manga-btn active" onClick={onLogout}>Ya, Keluar</button>
+              <button className="btn-modal-cancel manga-btn" onClick={() => setShowLogoutModal(false)}>BATAL</button>
+              <button className="btn-modal-confirm manga-btn active" onClick={onLogout}>YA, KELUAR!</button>
             </div>
           </div>
         </div>
