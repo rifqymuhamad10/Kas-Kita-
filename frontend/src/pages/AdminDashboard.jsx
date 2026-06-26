@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Dashboard.css';
 
-function AdminDashboard({ user, onLogout }) {
+const API_BASE = 'http://localhost:8080/api/v1';
+
+function AdminDashboard({ user, onLogout, onNavigate }) {
   const displayName = user?.name || "Memuat...";
   const displayRole = user?.role === 'ROLE_ADMIN' ? "BENDAHARA" : "SISWA";
 
@@ -9,20 +11,52 @@ function AdminDashboard({ user, onLogout }) {
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-  // --- DUMMY DATA ---
-  const [summaryData] = useState({
-    balance: 1500000,
-    income: 385000,
-    expense: 132000
-  });
+  // --- API DATA ---
+  const [balance, setBalance] = useState(0);
+  const [income, setIncome] = useState(0);
+  const [expense, setExpense] = useState(0);
+  const [recentTransactions, setRecentTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const [recentTransactions] = useState([
-    { id: 'tx1', date: '2026-06-14', category: 'Uang Kas', type: 'INCOME', desc: 'Iuran Mingguan - Citra Lestari', amount: 20000 },
-    { id: 'tx2', date: '2024-09-12', category: 'Uang Kas', type: 'INCOME', desc: 'Iuran Mingguan (8 Siswa)', amount: 160000 },
-    { id: 'tx3', date: '2024-09-14', category: 'Konsumsi', type: 'EXPENSE', desc: 'Snack Rapat Kelas', amount: 45000 },
-    { id: 'tx4', date: '2024-09-15', category: 'Administrasi', type: 'EXPENSE', desc: 'Fotocopy Modul', amount: 12000 },
-    { id: 'tx5', date: '2024-09-18', category: 'Denda', type: 'INCOME', desc: 'Denda Keterlambatan', amount: 5000 },
-  ]);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch balance
+        const balanceRes = await fetch(`${API_BASE}/transactions/balance`, {
+          headers: { 'Authorization': `Bearer ${user?.token}` }
+        });
+        if (balanceRes.ok) {
+          const bal = await balanceRes.json();
+          setBalance(bal);
+        }
+
+        // Fetch transactions
+        const txRes = await fetch(`${API_BASE}/transactions`, {
+          headers: { 'Authorization': `Bearer ${user?.token}` }
+        });
+        if (txRes.ok) {
+          const txs = await txRes.json();
+          let inc = 0;
+          let exp = 0;
+          txs.forEach(t => {
+            if (t.type === 'INCOME') inc += t.amount || 0;
+            else if (t.type === 'EXPENSE') exp += t.amount || 0;
+          });
+          setIncome(inc);
+          setExpense(exp);
+          setRecentTransactions(txs);
+        }
+      } catch (err) {
+        console.error("Gagal mengambil data dashboard:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (user?.token) {
+      fetchData();
+    }
+  }, [user]);
 
   const [studentStatus] = useState([
     { id: 's1', name: 'Ahmad', status: 'LUNAS', seed: 'Jack' },
@@ -61,7 +95,7 @@ function AdminDashboard({ user, onLogout }) {
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square"><circle cx="8" cy="8" r="7"></circle><circle cx="16" cy="16" r="7"></circle></svg>
             IURAN KAS
           </div>
-          <div className="menu-item">
+          <div className="menu-item" onClick={() => onNavigate('target')}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle></svg>
             TARGET
           </div>
@@ -118,21 +152,21 @@ function AdminDashboard({ user, onLogout }) {
             <div className="summary-card balance manga-panel speed-lines-bg">
               <div className="card-info relative-z">
                 <p className="card-label bg-white-highlight">TOTAL SALDO</p>
-                <h3 className="card-amount impact-text bg-white-highlight">Rp {summaryData.balance.toLocaleString('id-ID')}</h3>
+                <h3 className="card-amount impact-text bg-white-highlight">Rp {balance.toLocaleString('id-ID')}</h3>
               </div>
             </div>
 
             <div className="summary-card income manga-panel">
               <div className="card-info">
                 <p className="card-label">PEMASUKAN</p>
-                <h3 className="card-amount">Rp {summaryData.income.toLocaleString('id-ID')}</h3>
+                <h3 className="card-amount">Rp {income.toLocaleString('id-ID')}</h3>
               </div>
             </div>
 
             <div className="summary-card expense manga-panel">
               <div className="card-info">
                 <p className="card-label">PENGELUARAN</p>
-                <h3 className="card-amount text-semantic-red">Rp {summaryData.expense.toLocaleString('id-ID')}</h3>
+                <h3 className="card-amount text-semantic-red">Rp {expense.toLocaleString('id-ID')}</h3>
               </div>
             </div>
           </div>
@@ -208,20 +242,30 @@ function AdminDashboard({ user, onLogout }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {recentTransactions.map(tx => (
-                    <tr key={tx.id}>
-                      <td className="col-date mono-text">{tx.date}</td>
-                      <td>
-                        <span className="cat-badge manga-box">
-                          {tx.category.toUpperCase()}
-                        </span>
-                      </td>
-                      <td className="col-desc">{tx.desc.toUpperCase()}</td>
-                      <td className={`mono-text ${tx.type === 'INCOME' ? '' : 'text-semantic-red'}`}>
-                        {tx.type === 'INCOME' ? '+RP ' : '-RP '}{tx.amount.toLocaleString('id-ID')}
+                  {recentTransactions.length === 0 ? (
+                    <tr>
+                      <td colSpan="4" style={{ textAlign: 'center', padding: '2rem', fontWeight: 700 }}>
+                        BELUM ADA TRANSAKSI
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    recentTransactions.slice(0, 5).map(tx => (
+                      <tr key={tx.id}>
+                        <td className="col-date mono-text">
+                          {tx.timestamp ? new Date(tx.timestamp).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase() : '-'}
+                        </td>
+                        <td>
+                          <span className="cat-badge manga-box">
+                            {tx.type || 'MASUK'}
+                          </span>
+                        </td>
+                        <td className="col-desc">{(tx.description || '').toUpperCase()}</td>
+                        <td className={`mono-text ${tx.type === 'INCOME' ? '' : 'text-semantic-red'}`}>
+                          {tx.type === 'INCOME' ? '+RP ' : '-RP '}{(tx.amount || 0).toLocaleString('id-ID')}
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>

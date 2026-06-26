@@ -3,11 +3,13 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import AdminDashboard from './pages/AdminDashboard';
 import MemberDashboard from './pages/MemberDashboard';
+import AdminTargetPage from './pages/AdminTargetPage';
+import MemberTargetPage from './pages/MemberTargetPage';
 import { auth } from './services/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 
 function App() {
-  const [page, setPage] = useState('login'); // 'login' | 'register' | 'dashboard'
+  const [page, setPage] = useState('login'); // 'login' | 'register' | 'dashboard' | 'target'
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -141,12 +143,37 @@ function App() {
     );
   }
 
+  // Helper navigasi halaman
+  const handleNavigate = (targetPage) => setPage(targetPage);
+  const isAdmin = user?.role === 'ROLE_ADMIN' || user?.role === 'ADMIN';
+
+  // Halaman Target
+  if (page === 'target') {
+    if (isAdmin) {
+      return (
+        <AdminTargetPage
+          user={user}
+          onLogout={handleLogout}
+          onNavigate={handleNavigate}
+        />
+      );
+    }
+    return (
+      <MemberTargetPage
+        user={user}
+        onLogout={handleLogout}
+        onNavigate={handleNavigate}
+      />
+    );
+  }
+
   // Arahkan ke dashboard spesifik berdasarkan Role
-  if (user?.role === 'ROLE_ADMIN' || user?.role === 'ADMIN') {
+  if (isAdmin) {
     return (
       <AdminDashboard
         user={user}
         onLogout={handleLogout}
+        onNavigate={handleNavigate}
       />
     );
   }
@@ -155,6 +182,7 @@ function App() {
     <MemberDashboard
       user={user}
       onLogout={handleLogout}
+      onNavigate={handleNavigate}
     />
   );
 }

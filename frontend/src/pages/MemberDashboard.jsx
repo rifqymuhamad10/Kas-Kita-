@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Dashboard.css';
 
-function MemberDashboard({ user, onLogout }) {
+const API_BASE = 'http://localhost:8080/api/v1';
+
+function MemberDashboard({ user, onLogout, onNavigate }) {
   const displayName = user?.name || "Siswa";
   const displayRole = "SISWA";
 
@@ -9,29 +11,64 @@ function MemberDashboard({ user, onLogout }) {
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-  // --- DUMMY DATA ---
-  const [summaryData] = useState({
-    balance: 1500000,
-    income: 385000,
-    expense: 132000
-  });
+  // --- API DATA ---
+  const [balance, setBalance] = useState(0);
+  const [income, setIncome] = useState(0);
+  const [expense, setExpense] = useState(0);
+  const [recentTransactions, setRecentTransactions] = useState([]);
+  const [activeTarget, setActiveTarget] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const [targetData] = useState({
-    name: 'Beli Proyektor Kelas',
-    collected: 1500000,
-    goal: 2000000,
-  });
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch balance
+        const balanceRes = await fetch(`${API_BASE}/transactions/balance`, {
+          headers: { 'Authorization': `Bearer ${user?.token}` }
+        });
+        if (balanceRes.ok) {
+          const bal = await balanceRes.json();
+          setBalance(bal);
+        }
 
-  const [recentTransactions] = useState([
-    { id: 'tx1', date: '2026-06-14', category: 'Uang Kas', type: 'INCOME', desc: 'Iuran Mingguan - Citra Lestari', amount: 20000 },
-    { id: 'tx2', date: '2024-09-12', category: 'Uang Kas', type: 'INCOME', desc: 'Iuran Mingguan (8 Siswa)', amount: 160000 },
-    { id: 'tx3', date: '2024-09-14', category: 'Konsumsi', type: 'EXPENSE', desc: 'Snack Rapat Kelas', amount: 45000 },
-    { id: 'tx4', date: '2024-09-15', category: 'Administrasi', type: 'EXPENSE', desc: 'Fotocopy Modul', amount: 12000 },
-    { id: 'tx5', date: '2024-09-18', category: 'Denda', type: 'INCOME', desc: 'Denda Keterlambatan', amount: 5000 },
-  ]);
+        // Fetch transactions
+        const txRes = await fetch(`${API_BASE}/transactions`, {
+          headers: { 'Authorization': `Bearer ${user?.token}` }
+        });
+        if (txRes.ok) {
+          const txs = await txRes.json();
+          let inc = 0;
+          let exp = 0;
+          txs.forEach(t => {
+            if (t.type === 'INCOME') inc += t.amount || 0;
+            else if (t.type === 'EXPENSE') exp += t.amount || 0;
+          });
+          setIncome(inc);
+          setExpense(exp);
+          setRecentTransactions(txs);
+        }
 
-  // Hitung persentase target
-  const targetPercentage = Math.round((targetData.collected / targetData.goal) * 100);
+        // Fetch active target
+        const targetRes = await fetch(`${API_BASE}/targets/active`, {
+          headers: { 'Authorization': `Bearer ${user?.token}` }
+        });
+        if (targetRes.ok) {
+          const targets = await targetRes.json();
+          if (targets && targets.length > 0) {
+            setActiveTarget(targets[0]);
+          }
+        }
+      } catch (err) {
+        console.error("Gagal mengambil data dashboard:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (user?.token) {
+      fetchData();
+    }
+  }, [user]);
 
   return (
     <div className="dashboard-layout manga-theme">
@@ -57,7 +94,7 @@ function MemberDashboard({ user, onLogout }) {
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
             TRANSAKSI
           </div>
-          <div className="menu-item">
+          <div className="menu-item" onClick={() => onNavigate('target')}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle></svg>
             TARGET KELAS
           </div>
@@ -101,21 +138,21 @@ function MemberDashboard({ user, onLogout }) {
             <div className="summary-card balance manga-panel speed-lines-bg">
               <div className="card-info relative-z">
                 <p className="card-label bg-white-highlight">TOTAL SALDO</p>
-                <h3 className="card-amount impact-text bg-white-highlight">Rp {summaryData.balance.toLocaleString('id-ID')}</h3>
+                <h3 className="card-amount impact-text bg-white-highlight">Rp {balance.toLocaleString('id-ID')}</h3>
               </div>
             </div>
 
             <div className="summary-card income manga-panel">
               <div className="card-info">
                 <p className="card-label">PEMASUKAN</p>
-                <h3 className="card-amount">Rp {summaryData.income.toLocaleString('id-ID')}</h3>
+                <h3 className="card-amount">Rp {income.toLocaleString('id-ID')}</h3>
               </div>
             </div>
 
             <div className="summary-card expense manga-panel">
               <div className="card-info">
                 <p className="card-label">PENGELUARAN</p>
-                <h3 className="card-amount text-semantic-red">Rp {summaryData.expense.toLocaleString('id-ID')}</h3>
+                <h3 className="card-amount text-semantic-red">Rp {expense.toLocaleString('id-ID')}</h3>
               </div>
             </div>
           </div>
@@ -147,28 +184,41 @@ function MemberDashboard({ user, onLogout }) {
 
             {/* Kanan: Status Target Kelas */}
             <div className="dashboard-card status-card manga-panel" style={{ display: 'flex', flexDirection: 'column', justifyItems: 'center', justifyContent: 'center' }}>
-              <div className="status-header-new">
-                <h3 className="card-title-new">TARGET KELAS: {targetData.name.toUpperCase()}</h3>
-                <div className="ratio-text-new manga-box">
-                  <span className="ratio-highlight" style={{ fontSize: '1.2rem' }}>{targetPercentage}%</span>
-                </div>
-              </div>
-              
-              <div className="progress-bar-container-new manga-border">
-                <div className="progress-fill-new manga-ink-bg" style={{ width: `${targetPercentage}%` }}></div>
-              </div>
+              {activeTarget ? (
+                <>
+                  <div className="status-header-new">
+                    <h3 className="card-title-new" style={{ textTransform: 'uppercase' }}>TARGET KELAS: {activeTarget.name}</h3>
+                    <div className="ratio-text-new manga-box">
+                      <span className="ratio-highlight" style={{ fontSize: '1.2rem' }}>
+                        {Math.min(Math.round((balance / activeTarget.targetAmount) * 100), 100)}%
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="progress-bar-container-new manga-border">
+                    <div className="progress-fill-new manga-ink-bg" style={{ width: `${Math.min(Math.round((balance / activeTarget.targetAmount) * 100), 100)}%` }}></div>
+                  </div>
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem 0' }}>
-                <div>
-                  <p className="mono-text" style={{ margin: 0, fontSize: '0.9rem', fontWeight: 700 }}>TERKUMPUL</p>
-                  <h4 className="mono-text" style={{ margin: '4px 0 0 0', fontSize: '1.2rem', fontWeight: 800 }}>RP {targetData.collected.toLocaleString('id-ID')}</h4>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem 0' }}>
+                    <div>
+                      <p className="mono-text" style={{ margin: 0, fontSize: '0.9rem', fontWeight: 700 }}>TERKUMPUL</p>
+                      <h4 className="mono-text" style={{ margin: '4px 0 0 0', fontSize: '1.2rem', fontWeight: 800 }}>RP {balance.toLocaleString('id-ID')}</h4>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <p className="mono-text" style={{ margin: 0, fontSize: '0.9rem', fontWeight: 700 }}>GOAL TARGET</p>
+                      <h4 className="mono-text" style={{ margin: '4px 0 0 0', fontSize: '1.2rem', fontWeight: 800 }}>RP {activeTarget.targetAmount.toLocaleString('id-ID')}</h4>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div style={{ textAlign: 'center', padding: '1rem' }}>
+                  <h3 className="card-title-new" style={{ margin: '0 0 10px 0' }}>TARGET KELAS</h3>
+                  <div className="manga-box" style={{ padding: '1rem', background: 'var(--screentone)', backgroundSize: '5px 5px', border: '2px solid var(--manga-ink)' }}>
+                    <p style={{ fontWeight: 800, margin: 0 }}>BELUM ADA TARGET AKTIF</p>
+                    <p style={{ fontSize: '0.8rem', fontWeight: 600, margin: '5px 0 0 0' }}>Cek kembali nanti saat Bendahara menambahkan target baru.</p>
+                  </div>
                 </div>
-                <div style={{ textAlign: 'right' }}>
-                  <p className="mono-text" style={{ margin: 0, fontSize: '0.9rem', fontWeight: 700 }}>GOAL TARGET</p>
-                  <h4 className="mono-text" style={{ margin: '4px 0 0 0', fontSize: '1.2rem', fontWeight: 800 }}>RP {targetData.goal.toLocaleString('id-ID')}</h4>
-                </div>
-              </div>
-              
+              )}
             </div>
           </div>
 
@@ -189,20 +239,30 @@ function MemberDashboard({ user, onLogout }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {recentTransactions.map(tx => (
-                    <tr key={tx.id}>
-                      <td className="col-date mono-text">{tx.date}</td>
-                      <td>
-                        <span className="cat-badge manga-box">
-                          {tx.category.toUpperCase()}
-                        </span>
-                      </td>
-                      <td className="col-desc">{tx.desc.toUpperCase()}</td>
-                      <td className={`mono-text ${tx.type === 'INCOME' ? '' : 'text-semantic-red'}`}>
-                        {tx.type === 'INCOME' ? '+RP ' : '-RP '}{tx.amount.toLocaleString('id-ID')}
+                  {recentTransactions.length === 0 ? (
+                    <tr>
+                      <td colSpan="4" style={{ textAlign: 'center', padding: '2rem', fontWeight: 700 }}>
+                        BELUM ADA TRANSAKSI
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    recentTransactions.slice(0, 5).map(tx => (
+                      <tr key={tx.id}>
+                        <td className="col-date mono-text">
+                          {tx.timestamp ? new Date(tx.timestamp).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase() : '-'}
+                        </td>
+                        <td>
+                          <span className="cat-badge manga-box">
+                            {tx.type || 'MASUK'}
+                          </span>
+                        </td>
+                        <td className="col-desc">{(tx.description || '').toUpperCase()}</td>
+                        <td className={`mono-text ${tx.type === 'INCOME' ? '' : 'text-semantic-red'}`}>
+                          {tx.type === 'INCOME' ? '+RP ' : '-RP '}{(tx.amount || 0).toLocaleString('id-ID')}
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>

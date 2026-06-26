@@ -2,8 +2,9 @@
 title Kas Kita Backend - Constrained Memory
 echo Starting Kas Kita Backend with low memory profile...
 
-:: Kosongkan JAVA_HOME sementara biar Maven maksa narik Java 24 dari PATH Windows
-set "JAVA_HOME="
+:: Point to JDK 21 to ensure compatibility with Lombok
+set "JAVA_HOME=C:\Program Files\Java\jdk-21.0.11"
+set "PATH=%JAVA_HOME%\bin;%PATH%"
 
 :: Constrain Maven wrapper JVM memory
 set MAVEN_OPTS=-Xms32m -Xmx128m -XX:+UseSerialGC
