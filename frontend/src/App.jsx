@@ -8,6 +8,7 @@ import AdminTargetPage from './pages/AdminTargetPage';
 import MemberTargetPage from './pages/MemberTargetPage';
 import AdminTransactionPage from './pages/AdminTransactionPage';
 import MemberTransactionPage from './pages/MemberTransactionPage';
+import AdminKasSiswaPage from './pages/AdminKasSiswaPage';
 import { auth } from './services/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import './pages/Dashboard.css';
@@ -246,6 +247,15 @@ function App() {
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle></svg>
                   TARGET
                 </div>
+                <div className={`menu-item ${page === 'kas-siswa' ? 'active' : ''}`} onClick={() => handleNavigate('kas-siswa')}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                  </svg>
+                  KAS SISWA
+                </div>
                 <div className="menu-item">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square" strokeLinejoin="miter">
                     <path d="M22 19H2V5h5l2 3h13v11z"></path>
@@ -292,6 +302,18 @@ function App() {
 
   // Render Page Content
   const renderPageContent = () => {
+    if (page === 'kas-siswa' && isAdmin) {
+      return (
+        <AdminKasSiswaPage
+          user={user}
+          onLogout={handleLogout}
+          onNavigate={handleNavigate}
+          isSidebarOpen={isSidebarOpen}
+          toggleSidebar={toggleSidebar}
+        />
+      );
+    }
+
     if (page === 'target') {
       if (isAdmin) {
         return (

@@ -54,12 +54,7 @@ function AdminDashboard({ user, onLogout, onNavigate, isSidebarOpen, toggleSideb
     }
   }, [user]);
 
-  const [studentStatus] = useState([
-    { id: 's1', name: 'Ahmad', status: 'LUNAS', seed: 'Jack' },
-    { id: 's2', name: 'Budi', status: 'LUNAS', seed: 'Felix' },
-    { id: 's3', name: 'Citra', status: 'BELUM', seed: 'Jocelyn' },
-    { id: 's4', name: 'Dewi', status: 'LUNAS', seed: 'Avery' },
-  ]);
+
 
   return (
     <main className="main-content">
@@ -109,42 +104,24 @@ function AdminDashboard({ user, onLogout, onNavigate, isSidebarOpen, toggleSideb
           </div>
         </div>
 
-        {/* ROW 2: CHART & STATUS KAS */}
-        <div className="grid-row-2">
-          <div className="dashboard-card chart-card manga-panel screentone-bg">
-            <h3 className="card-title-new bg-white-highlight inline-block">ALOKASI PENGELUARAN</h3>
-            
-            <div className="chart-placeholder-new bg-white-highlight border-box">
-              <div className="donut-wrapper">
-                <div className="donut-chart-css manga-donut"></div>
-                <div className="donut-inner-text">
-                  <span className="donut-label">TERBESAR</span>
-                  <span className="donut-value">KONSUMSI</span>
-                </div>
-              </div>
-              
-              <div className="chart-legend-new">
-                <p><span className="dot fill-black"></span> KONSUMSI (27%)</p>
-                <p><span className="dot fill-grey"></span> ADMIN (23%)</p>
-                <p><span className="dot fill-stripe"></span> DEKOR (44%)</p>
-                <p><span className="dot border-only"></span> LAINNYA (6%)</p>
+        {/* ROW 2: CHART */}
+        <div className="dashboard-card chart-card manga-panel screentone-bg" style={{ marginBottom: '1.5rem' }}>
+          <h3 className="card-title-new bg-white-highlight inline-block">ALOKASI PENGELUARAN</h3>
+          
+          <div className="chart-placeholder-new bg-white-highlight border-box">
+            <div className="donut-wrapper">
+              <div className="donut-chart-css manga-donut"></div>
+              <div className="donut-inner-text">
+                <span className="donut-label">TERBESAR</span>
+                <span className="donut-value">KONSUMSI</span>
               </div>
             </div>
-          </div>
-
-          <div className="dashboard-card status-card manga-panel">
-            <h3 className="card-title-new">DAFTAR KAS SISWA</h3>
             
-            <div className="status-grid-new">
-              {studentStatus.map(s => (
-                <div className="student-row-new manga-box" key={s.id}>
-                  <div className="student-profile-new">
-                    <img src={`https://api.dicebear.com/7.x/pixel-art/svg?seed=${s.seed}`} alt="avatar" />
-                    <span className="student-name-new">{s.name}</span>
-                  </div>
-                  <span className={`status-badge-new ${s.status === 'LUNAS' ? 'lunas-tag' : 'belum-tag'}`}>{s.status}</span>
-                </div>
-              ))}
+            <div className="chart-legend-new">
+              <p><span className="dot fill-black"></span> KONSUMSI (27%)</p>
+              <p><span className="dot fill-grey"></span> ADMIN (23%)</p>
+              <p><span className="dot fill-stripe"></span> DEKOR (44%)</p>
+              <p><span className="dot border-only"></span> LAINNYA (6%)</p>
             </div>
           </div>
         </div>
