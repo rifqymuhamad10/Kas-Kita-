@@ -50,4 +50,26 @@ public class TransactionController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public ResponseEntity<String> updateTransaction(@PathVariable String id, @RequestBody Transaction transaction) {
+        try {
+            String updateTime = transactionService.updateTransaction(id, transaction);
+            return ResponseEntity.ok("Transaction updated at: " + updateTime);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public ResponseEntity<String> deleteTransaction(@PathVariable String id) {
+        try {
+            transactionService.deleteTransaction(id);
+            return ResponseEntity.ok("Transaction deleted successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
 }

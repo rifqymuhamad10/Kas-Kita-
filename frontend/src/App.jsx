@@ -5,6 +5,8 @@ import AdminDashboard from './pages/AdminDashboard';
 import MemberDashboard from './pages/MemberDashboard';
 import AdminTargetPage from './pages/AdminTargetPage';
 import MemberTargetPage from './pages/MemberTargetPage';
+import AdminTransactionPage from './pages/AdminTransactionPage';
+import MemberTransactionPage from './pages/MemberTransactionPage';
 import { auth } from './services/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 
@@ -160,6 +162,26 @@ function App() {
     }
     return (
       <MemberTargetPage
+        user={user}
+        onLogout={handleLogout}
+        onNavigate={handleNavigate}
+      />
+    );
+  }
+
+  // Halaman Transaksi
+  if (page === 'transactions') {
+    if (isAdmin) {
+      return (
+        <AdminTransactionPage
+          user={user}
+          onLogout={handleLogout}
+          onNavigate={handleNavigate}
+        />
+      );
+    }
+    return (
+      <MemberTransactionPage
         user={user}
         onLogout={handleLogout}
         onNavigate={handleNavigate}

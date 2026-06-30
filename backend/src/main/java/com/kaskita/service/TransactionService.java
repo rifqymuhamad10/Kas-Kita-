@@ -57,4 +57,18 @@ public class TransactionService {
         }
         return balance;
     }
+
+    public String updateTransaction(String id, Transaction transaction) throws ExecutionException, InterruptedException {
+        transaction.setId(id);
+        if (transaction.getTimestamp() == null) {
+            transaction.setTimestamp(System.currentTimeMillis());
+        }
+        ApiFuture<WriteResult> collectionsApiFuture = firestore.collection(COLLECTION_NAME).document(id).set(transaction);
+        return collectionsApiFuture.get().getUpdateTime().toString();
+    }
+
+    public void deleteTransaction(String id) throws ExecutionException, InterruptedException {
+        ApiFuture<WriteResult> writeResult = firestore.collection(COLLECTION_NAME).document(id).delete();
+        writeResult.get();
+    }
 }

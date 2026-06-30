@@ -1,0 +1,231 @@
+/* ================= ADMIN TRANSACTION PAGE ================= */
+
+.summary-row-transactions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  gap: 1.5rem;
+}
+
+.summary-row-transactions .summary-card {
+  flex-grow: 1;
+  max-width: 400px;
+}
+
+.btn-action-add-tx {
+  padding: 1.2rem 2rem;
+  font-family: var(--font-manga);
+  font-size: 1.15rem;
+  font-weight: 800;
+  cursor: pointer;
+  background-color: var(--manga-ink);
+  color: var(--manga-white);
+  border: 2px solid var(--manga-ink);
+  box-shadow: 4px 4px 0 var(--manga-ink);
+  transition: all 0.15s ease;
+  text-transform: uppercase;
+}
+
+.btn-action-add-tx:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 7px 7px 0 var(--manga-ink);
+}
+
+.btn-action-add-tx:active {
+  transform: translate(4px, 4px);
+  box-shadow: 0px 0px 0 var(--manga-ink);
+}
+
+/* Modal form style */
+.modal-box-tx {
+  width: 90%;
+  max-width: 550px;
+  background-color: var(--manga-white);
+  border: 3px solid var(--manga-ink);
+  box-shadow: 8px 8px 0 var(--manga-ink);
+  padding: 2rem;
+  animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-title-tx {
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid var(--manga-ink);
+  padding-bottom: 0.5rem;
+}
+
+.form-tx {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-grid-tx {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 600px) {
+  .form-grid-tx {
+    grid-template-columns: 1fr;
+  }
+  .summary-row-transactions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .summary-row-transactions .summary-card {
+    max-width: 100%;
+  }
+}
+
+.form-group-tx {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.form-label-tx {
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: var(--manga-ink);
+}
+
+.form-input-tx, .form-textarea-tx {
+  border: 2px solid var(--manga-ink);
+  padding: 0.8rem;
+  font-family: var(--font-manga);
+  font-size: 1rem;
+  background-color: var(--manga-white);
+  border-radius: 4px;
+}
+
+.form-input-tx:focus, .form-textarea-tx:focus {
+  outline: none;
+  background-color: #FFFDF0; /* Subtle warm background on focus */
+}
+
+.form-textarea-tx {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.form-divider-tx {
+  font-weight: 800;
+  font-size: 1rem;
+  border-bottom: 2px dashed var(--manga-ink);
+  padding-bottom: 0.3rem;
+  margin-top: 0.5rem;
+  letter-spacing: 1px;
+}
+
+.form-file-tx {
+  font-family: var(--font-manga);
+  padding: 0.5rem 0;
+}
+
+/* Tooltip & badging */
+.cat-badge-tx {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  background-color: var(--manga-white);
+  border: 1px solid var(--manga-ink);
+  border-radius: 2px;
+}
+
+.type-badge {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border-radius: 2px;
+}
+
+.btn-view-evidence {
+  text-decoration: none;
+  font-weight: 800;
+  padding: 0.2rem 0.5rem;
+  background-color: var(--manga-white);
+  border: 2px solid var(--manga-ink);
+  color: var(--manga-ink);
+  font-size: 0.8rem;
+  transition: all 0.1s ease;
+}
+
+.btn-view-evidence:hover {
+  background-color: var(--manga-ink);
+  color: var(--manga-white);
+}
+
+.evidence-tooltip-trigger {
+  font-weight: 800;
+  text-decoration: underline;
+  cursor: help;
+  font-size: 0.85rem;
+}
+
+.status-uploading {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--manga-ink);
+  margin-top: 0.2rem;
+  animation: pulse 1.5s infinite;
+}
+
+.status-error-tx {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--semantic-red);
+  margin-top: 0.2rem;
+}
+
+.status-success-tx {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #2E7D32;
+  margin-top: 0.2rem;
+}
+
+.preview-url-tx {
+  margin-top: 0.3rem;
+  font-size: 0.85rem;
+}
+
+.preview-url-tx a {
+  color: var(--manga-ink);
+  font-weight: 800;
+  text-decoration: none;
+  border-bottom: 2px solid var(--manga-ink);
+}
+
+.modal-actions-tx {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.btn-tx-cancel {
+  background-color: var(--manga-white);
+  color: var(--manga-ink);
+}
+
+.btn-tx-save {
+  background-color: var(--manga-ink);
+  color: var(--manga-white);
+}
+
+@keyframes popIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

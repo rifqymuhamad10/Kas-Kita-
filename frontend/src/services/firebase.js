@@ -1,6 +1,7 @@
 // Firebase Client SDK Configuration
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
+import { getStorage } from 'firebase/storage';
 
 // Menggunakan config dari project ID "kas-kita-5a2f3" yang didapat dari firebase-service-account
 // Ganti nilai apiKey, authDomain, dll. sesuai dengan yang didapat dari Firebase Console jika diperlukan.
@@ -15,4 +16,5 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
+export const storage = getStorage(app);
 export default app;

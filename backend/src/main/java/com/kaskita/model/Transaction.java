@@ -16,4 +16,7 @@ public class Transaction {
     private String description;
     private Long timestamp;
     private String createdByUid;
+    private String category;
+    private String evidenceUrl;
+    private String evidenceDesc;
 }
