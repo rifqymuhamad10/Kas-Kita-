@@ -19,6 +19,54 @@ function MemberDashboard({ user, onLogout, onNavigate }) {
   const [activeTarget, setActiveTarget] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Pie chart: kalkulasi pengeluaran per kategori dari data transaksi
+  const CATEGORY_COLORS = [
+    { fill: '#1A1A1A', stroke: '#1A1A1A', label: 'IURAN KAS' },
+    { fill: '#888888', stroke: '#1A1A1A', label: 'KONSUMSI' },
+    { fill: '#CCCCCC', stroke: '#1A1A1A', label: 'ATK' },
+    { fill: '#444444', stroke: '#1A1A1A', label: 'KEGIATAN' },
+    { fill: '#FFFFFF', stroke: '#1A1A1A', label: 'LAINNYA' },
+  ];
+
+  const categoryData = (() => {
+    const expenseTxs = recentTransactions.filter(tx => tx.type === 'EXPENSE');
+    const totals = {};
+    expenseTxs.forEach(tx => {
+      const cat = tx.category || 'LAINNYA';
+      totals[cat] = (totals[cat] || 0) + (tx.amount || 0);
+    });
+    const totalExpense = Object.values(totals).reduce((a, b) => a + b, 0);
+    return CATEGORY_COLORS
+      .map(c => ({
+        ...c,
+        amount: totals[c.label] || 0,
+        pct: totalExpense > 0 ? Math.round(((totals[c.label] || 0) / totalExpense) * 100) : 0
+      }))
+      .filter(c => c.amount > 0);
+  })();
+
+  // SVG Pie chart helper
+  const buildPieSlices = (data) => {
+    const SIZE = 140, R = 60, cx = SIZE / 2, cy = SIZE / 2;
+    const total = data.reduce((s, d) => s + d.amount, 0);
+    if (total === 0) return [];
+    let startAngle = -Math.PI / 2;
+    return data.map((d) => {
+      const angle = (d.amount / total) * 2 * Math.PI;
+      const x1 = cx + R * Math.cos(startAngle);
+      const y1 = cy + R * Math.sin(startAngle);
+      const endAngle = startAngle + angle;
+      const x2 = cx + R * Math.cos(endAngle);
+      const y2 = cy + R * Math.sin(endAngle);
+      const largeArc = angle > Math.PI ? 1 : 0;
+      const pathD = `M ${cx} ${cy} L ${x1} ${y1} A ${R} ${R} 0 ${largeArc} 1 ${x2} ${y2} Z`;
+      startAngle = endAngle;
+      return { ...d, pathD };
+    });
+  };
+  const pieSlices = buildPieSlices(categoryData);
+  const largestCat = categoryData.length > 0 ? categoryData.reduce((a, b) => a.amount > b.amount ? a : b) : null;
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -160,25 +208,50 @@ function MemberDashboard({ user, onLogout, onNavigate }) {
           {/* ROW 2: CHART & STATUS TARGET */}
           <div className="grid-row-2">
             
-            {/* Kiri: Chart Donut */}
+            {/* Kiri: Pie Chart Dinamis */}
             <div className="dashboard-card chart-card manga-panel screentone-bg">
               <h3 className="card-title-new bg-white-highlight inline-block">ALOKASI PENGELUARAN</h3>
               
               <div className="chart-placeholder-new bg-white-highlight border-box">
-                <div className="donut-wrapper">
-                  <div className="donut-chart-css manga-donut"></div>
-                  <div className="donut-inner-text">
-                    <span className="donut-label">TERBESAR</span>
-                    <span className="donut-value">KONSUMSI</span>
+                {categoryData.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '2rem', fontWeight: 800, width: '100%' }}>
+                    BELUM ADA DATA PENGELUARAN
                   </div>
-                </div>
-                
-                <div className="chart-legend-new">
-                  <p><span className="dot fill-black"></span> KONSUMSI (27%)</p>
-                  <p><span className="dot fill-grey"></span> ADMIN (23%)</p>
-                  <p><span className="dot fill-stripe"></span> DEKOR (44%)</p>
-                  <p><span className="dot border-only"></span> LAINNYA (6%)</p>
-                </div>
+                ) : (
+                  <>
+                    <div className="donut-wrapper">
+                      <svg width="140" height="140" viewBox="0 0 140 140" style={{ border: '2px solid #1A1A1A', borderRadius: '50%' }}>
+                        {pieSlices.map((slice, i) => (
+                          <path
+                            key={i}
+                            d={slice.pathD}
+                            fill={slice.fill}
+                            stroke={slice.stroke}
+                            strokeWidth="1.5"
+                          />
+                        ))}
+                        {/* Lingkaran tengah (donut hole) */}
+                        <circle cx="70" cy="70" r="38" fill="white" stroke="#1A1A1A" strokeWidth="2" />
+                        {largestCat && (
+                          <>
+                            <text x="70" y="65" textAnchor="middle" fontSize="7" fontWeight="800" fill="#1A1A1A" fontFamily="'Comic Neue', sans-serif">TERBESAR</text>
+                            <text x="70" y="78" textAnchor="middle" fontSize="9" fontWeight="800" fill="#1A1A1A" fontFamily="'Comic Neue', sans-serif">{largestCat.label}</text>
+                            <text x="70" y="90" textAnchor="middle" fontSize="10" fontWeight="800" fill="#1A1A1A" fontFamily="'JetBrains Mono', monospace">{largestCat.pct}%</text>
+                          </>
+                        )}
+                      </svg>
+                    </div>
+                    
+                    <div className="chart-legend-new">
+                      {categoryData.map((cat, i) => (
+                        <p key={i}>
+                          <span className="dot" style={{ backgroundColor: cat.fill, border: `2px solid ${cat.stroke}` }}></span>
+                          {cat.label} ({cat.pct}%)
+                        </p>
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
             </div>
 
@@ -222,10 +295,10 @@ function MemberDashboard({ user, onLogout, onNavigate }) {
             </div>
           </div>
 
-          {/* ROW 3: TRANSAKSI TERBARU */}
+          {/* ROW 3: RIWAYAT TRANSAKSI */}
           <div className="table-card manga-panel">
             <div className="table-header-container">
-              <h3 className="transaction-title">HISTORI TRANSAKSI</h3>
+              <h3 className="transaction-title">RIWAYAT TRANSAKSI</h3>
             </div>
             
             <div className="table-responsive">
@@ -233,6 +306,7 @@ function MemberDashboard({ user, onLogout, onNavigate }) {
                 <thead>
                   <tr>
                     <th>TANGGAL</th>
+                    <th>TIPE</th>
                     <th>KATEGORI</th>
                     <th>KETERANGAN</th>
                     <th>JUMLAH</th>
@@ -241,7 +315,7 @@ function MemberDashboard({ user, onLogout, onNavigate }) {
                 <tbody>
                   {recentTransactions.length === 0 ? (
                     <tr>
-                      <td colSpan="4" style={{ textAlign: 'center', padding: '2rem', fontWeight: 700 }}>
+                      <td colSpan="5" style={{ textAlign: 'center', padding: '2rem', fontWeight: 700 }}>
                         BELUM ADA TRANSAKSI
                       </td>
                     </tr>
@@ -252,8 +326,13 @@ function MemberDashboard({ user, onLogout, onNavigate }) {
                           {tx.timestamp ? new Date(tx.timestamp).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase() : '-'}
                         </td>
                         <td>
+                          <span className={`cat-badge manga-box ${tx.type === 'INCOME' ? 'manga-ink-bg' : 'manga-white-bg text-semantic-red'}`}>
+                            {tx.type === 'INCOME' ? 'PEMASUKAN' : 'PENGELUARAN'}
+                          </span>
+                        </td>
+                        <td>
                           <span className="cat-badge manga-box">
-                            {tx.type || 'MASUK'}
+                            {tx.category || 'LAINNYA'}
                           </span>
                         </td>
                         <td className="col-desc">{(tx.description || '').toUpperCase()}</td>
