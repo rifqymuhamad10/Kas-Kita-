@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import VerifyEmail from './pages/VerifyEmail';
 import AdminDashboard from './pages/AdminDashboard';
 import MemberDashboard from './pages/MemberDashboard';
 import AdminTargetPage from './pages/AdminTargetPage';
@@ -9,11 +10,16 @@ import AdminTransactionPage from './pages/AdminTransactionPage';
 import MemberTransactionPage from './pages/MemberTransactionPage';
 import { auth } from './services/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
+import './pages/Dashboard.css';
 
 function App() {
   const [page, setPage] = useState('login'); // 'login' | 'register' | 'dashboard' | 'target'
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Global Sidebar State to keep it persistent across page changes
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
   // Monitor status auth Firebase secara real-time
   useEffect(() => {
@@ -22,6 +28,21 @@ function App() {
         try {
           const token = await currentUser.getIdToken();
           
+          // Jika email belum diverifikasi, arahkan ke halaman verifikasi email
+          if (!currentUser.emailVerified) {
+            setUser({
+              uid: currentUser.uid,
+              email: currentUser.email,
+              name: currentUser.displayName || currentUser.email.split('@')[0],
+              token: token,
+              role: null,
+              emailVerified: false
+            });
+            setPage('verify-email');
+            setLoading(false);
+            return;
+          }
+
           // Ambil detail role dari backend me endpoint
           const meRes = await fetch('http://localhost:8080/api/v1/auth/me', {
             headers: {
@@ -46,7 +67,8 @@ function App() {
             email: currentUser.email,
             name: displayName,
             token: token,
-            role: role
+            role: role,
+            emailVerified: true
           };
           console.log("Setting user state to:", userObj);
           setUser(userObj);
@@ -100,12 +122,21 @@ function App() {
     );
   }
 
+  // View public pages outside layout
   if (page === 'login') {
     return (
       <Login
         onNavigateToRegister={() => setPage('register')}
         onLoginSuccess={async (userInfo) => {
-          // Ambil detail profil dari backend setelah login sukses
+          if (auth.currentUser && !auth.currentUser.emailVerified) {
+            setUser({
+              ...userInfo,
+              role: null,
+              emailVerified: false
+            });
+            setPage('verify-email');
+            return;
+          }
           try {
             const meRes = await fetch('http://localhost:8080/api/v1/auth/me', {
               headers: {
@@ -119,7 +150,8 @@ function App() {
             const loginUserObj = {
               ...userInfo,
               role: profile.role,
-              name: profile.name || userInfo.name
+              name: profile.name || userInfo.name,
+              emailVerified: true
             };
             console.log("onLoginSuccess: Setting user state to:", loginUserObj);
             setUser(loginUserObj);
@@ -139,73 +171,201 @@ function App() {
         onNavigateToLogin={() => setPage('login')}
         onRegisterSuccess={(userInfo) => {
           setUser(userInfo);
-          setPage('dashboard');
+          setPage('verify-email');
         }}
       />
     );
   }
 
-  // Helper navigasi halaman
+  if (page === 'verify-email') {
+    return (
+      <VerifyEmail
+        user={user}
+        onVerificationSuccess={async () => {
+          try {
+            const token = await auth.currentUser.getIdToken(true); // paksa refresh token agar status emailVerified diperbarui
+            const meRes = await fetch('http://localhost:8080/api/v1/auth/me', {
+              headers: {
+                'Authorization': `Bearer ${token}`
+              }
+            });
+            if (!meRes.ok) {
+              throw new Error(`Status response: ${meRes.status}`);
+            }
+            const profile = await meRes.json();
+            setUser({
+              uid: auth.currentUser.uid,
+              email: auth.currentUser.email,
+              name: profile.name || auth.currentUser.displayName || auth.currentUser.email.split('@')[0],
+              token: token,
+              role: profile.role,
+              emailVerified: true
+            });
+            setPage('dashboard');
+          } catch (e) {
+            console.error("Gagal memuat profil setelah verifikasi:", e);
+            alert("Email terverifikasi, tetapi gagal memuat profil dari server. Silakan hubungi admin.");
+          }
+        }}
+        onLogout={() => {
+          setUser(null);
+          setPage('login');
+        }}
+      />
+    );
+  }
+
   const handleNavigate = (targetPage) => setPage(targetPage);
   const isAdmin = user?.role === 'ROLE_ADMIN' || user?.role === 'ADMIN';
 
-  // Halaman Target
-  if (page === 'target') {
-    if (isAdmin) {
+  // Render Sidebar
+  const renderSidebar = () => {
+    return (
+      <>
+        {isSidebarOpen && <div className="sidebar-overlay desktop-hide" onClick={toggleSidebar}></div>}
+        <aside className={`sidebar manga-panel ${isSidebarOpen ? 'open' : 'closed'}`}>
+          <div className="sidebar-logo">
+            <div className="logo-box"></div>
+            <div className="logo-text">
+              <h2>KASKITA</h2>
+              <p>MANAGEMENT</p>
+            </div>
+          </div>
+          <nav className="sidebar-menu">
+            {isAdmin ? (
+              <>
+                <div className={`menu-item ${page === 'dashboard' ? 'active' : ''}`} onClick={() => handleNavigate('dashboard')}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                  DASHBOARD
+                </div>
+                <div className={`menu-item ${page === 'transactions' ? 'active' : ''}`} onClick={() => handleNavigate('transactions')}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                  TRANSAKSI
+                </div>
+                <div className={`menu-item ${page === 'target' ? 'active' : ''}`} onClick={() => handleNavigate('target')}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle></svg>
+                  TARGET
+                </div>
+                <div className="menu-item">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square" strokeLinejoin="miter">
+                    <path d="M22 19H2V5h5l2 3h13v11z"></path>
+                  </svg>
+                  KATEGORI
+                </div>
+                <div className="menu-item">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square" strokeLinejoin="miter">
+                    <rect x="2" y="6" width="20" height="12"></rect>
+                    <path d="M18 10h4v4h-4z"></path>
+                  </svg>
+                  DOMPET
+                </div>
+              </>
+            ) : (
+              <>
+                <div className={`menu-item ${page === 'dashboard' ? 'active' : ''}`} onClick={() => handleNavigate('dashboard')}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                  DASHBOARD
+                </div>
+                <div className={`menu-item ${page === 'transactions' ? 'active' : ''}`} onClick={() => handleNavigate('transactions')}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                  TRANSAKSI
+                </div>
+                <div className={`menu-item ${page === 'target' ? 'active' : ''}`} onClick={() => handleNavigate('target')}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle></svg>
+                  TARGET KELAS
+                </div>
+              </>
+            )}
+            
+            <div className="sidebar-bottom">
+              <div className="sidebar-divider"></div>
+              <div className="menu-item logout-btn" onClick={handleLogout}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                LOG OUT
+              </div>
+            </div>
+          </nav>
+        </aside>
+      </>
+    );
+  };
+
+  // Render Page Content
+  const renderPageContent = () => {
+    if (page === 'target') {
+      if (isAdmin) {
+        return (
+          <AdminTargetPage
+            user={user}
+            onLogout={handleLogout}
+            onNavigate={handleNavigate}
+            isSidebarOpen={isSidebarOpen}
+            toggleSidebar={toggleSidebar}
+          />
+        );
+      }
       return (
-        <AdminTargetPage
+        <MemberTargetPage
           user={user}
           onLogout={handleLogout}
           onNavigate={handleNavigate}
+          isSidebarOpen={isSidebarOpen}
+          toggleSidebar={toggleSidebar}
+        />
+      );
+    }
+
+    if (page === 'transactions') {
+      if (isAdmin) {
+        return (
+          <AdminTransactionPage
+            user={user}
+            onLogout={handleLogout}
+            onNavigate={handleNavigate}
+            isSidebarOpen={isSidebarOpen}
+            toggleSidebar={toggleSidebar}
+          />
+        );
+      }
+      return (
+        <MemberTransactionPage
+          user={user}
+          onLogout={handleLogout}
+          onNavigate={handleNavigate}
+          isSidebarOpen={isSidebarOpen}
+          toggleSidebar={toggleSidebar}
+        />
+      );
+    }
+
+    // Default to Dashboard
+    if (isAdmin) {
+      return (
+        <AdminDashboard
+          user={user}
+          onLogout={handleLogout}
+          onNavigate={handleNavigate}
+          isSidebarOpen={isSidebarOpen}
+          toggleSidebar={toggleSidebar}
         />
       );
     }
     return (
-      <MemberTargetPage
+      <MemberDashboard
         user={user}
         onLogout={handleLogout}
         onNavigate={handleNavigate}
+        isSidebarOpen={isSidebarOpen}
+        toggleSidebar={toggleSidebar}
       />
     );
-  }
-
-  // Halaman Transaksi
-  if (page === 'transactions') {
-    if (isAdmin) {
-      return (
-        <AdminTransactionPage
-          user={user}
-          onLogout={handleLogout}
-          onNavigate={handleNavigate}
-        />
-      );
-    }
-    return (
-      <MemberTransactionPage
-        user={user}
-        onLogout={handleLogout}
-        onNavigate={handleNavigate}
-      />
-    );
-  }
-
-  // Arahkan ke dashboard spesifik berdasarkan Role
-  if (isAdmin) {
-    return (
-      <AdminDashboard
-        user={user}
-        onLogout={handleLogout}
-        onNavigate={handleNavigate}
-      />
-    );
-  }
+  };
 
   return (
-    <MemberDashboard
-      user={user}
-      onLogout={handleLogout}
-      onNavigate={handleNavigate}
-    />
+    <div className="dashboard-layout manga-theme">
+      {renderSidebar()}
+      {renderPageContent()}
+    </div>
   );
 }
 

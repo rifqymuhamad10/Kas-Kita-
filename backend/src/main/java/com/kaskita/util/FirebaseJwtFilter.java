@@ -54,6 +54,9 @@ public class FirebaseJwtFilter extends OncePerRequestFilter {
 
         try {
             FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(token);
+            if (!decodedToken.isEmailVerified()) {
+                throw new Exception("Email Anda belum diverifikasi. Silakan verifikasi email Anda terlebih dahulu.");
+            }
             String uid = decodedToken.getUid();
             
             // Cari data user di Firestore

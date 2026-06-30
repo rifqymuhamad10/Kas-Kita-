@@ -30,7 +30,7 @@ public class UserService {
             throw new IllegalArgumentException("User with this UID already exists.");
         }
 
-        String role = (request.getRole() != null && !request.getRole().isEmpty()) ? request.getRole() : "ROLE_MEMBER";
+        String role = "ROLE_MEMBER";
 
         User newUser = User.builder()
                 .uid(request.getUid())
