@@ -4,13 +4,9 @@ import './MemberTargetPage.css';
 
 const API_BASE = 'http://localhost:8080/api/v1';
 
-function MemberTargetPage({ user, onLogout, onNavigate }) {
+function MemberTargetPage({ user, onLogout, onNavigate, isSidebarOpen, toggleSidebar }) {
   const displayName = user?.name || "Siswa";
   const displayRole = "SISWA";
-
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   // Data state
   const [targets, setTargets] = useState([]);
@@ -65,42 +61,7 @@ function MemberTargetPage({ user, onLogout, onNavigate }) {
   const statusLabel = { ACTIVE: 'AKTIF', ACHIEVED: 'TERCAPAI', CANCELLED: 'DIBATALKAN' };
 
   return (
-    <div className="dashboard-layout manga-theme">
-      
-      {/* OVERLAY & SIDEBAR */}
-      {isSidebarOpen && <div className="sidebar-overlay desktop-hide" onClick={toggleSidebar}></div>}
-      <aside className={`sidebar manga-panel ${isSidebarOpen ? 'open' : 'closed'}`}>
-        
-        <div className="sidebar-logo">
-          <div className="logo-box"></div>
-          <div className="logo-text">
-            <h2>KASKITA</h2>
-            <p>MANAGEMENT</p>
-          </div>
-        </div>
-        
-        <nav className="sidebar-menu">
-          <div className="menu-item" onClick={() => onNavigate('dashboard')}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-            DASHBOARD
-          </div>
-          <div className="menu-item active">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle></svg>
-            TARGET KELAS
-          </div>
-          
-          <div className="sidebar-bottom">
-            <div className="sidebar-divider"></div>
-            <div className="menu-item logout-btn" onClick={() => setShowLogoutModal(true)}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-              LOG OUT
-            </div>
-          </div>
-        </nav>
-      </aside>
-
-      {/* --- MAIN CONTENT --- */}
-      <main className="main-content">
+    <main className="main-content">
         
         {/* HEADER */}
         <header className="top-header manga-panel">
@@ -225,22 +186,6 @@ function MemberTargetPage({ user, onLogout, onNavigate }) {
 
         </div>
       </main>
-
-      {/* --- POPUP KONFIRMASI LOGOUT --- */}
-      {showLogoutModal && (
-        <div className="modal-overlay-custom">
-          <div className="modal-box manga-panel action-burst">
-            <h3 className="modal-title impact-text">YAKIN MAU KELUAR?!</h3>
-            <p className="modal-text">Kamu harus login lagi nanti!</p>
-            <div className="modal-actions">
-              <button className="btn-modal-cancel manga-btn" onClick={() => setShowLogoutModal(false)}>BATAL</button>
-              <button className="btn-modal-confirm manga-btn active" onClick={onLogout}>YA, KELUAR!</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-    </div>
   );
 }
 

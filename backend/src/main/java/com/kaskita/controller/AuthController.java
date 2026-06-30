@@ -43,6 +43,10 @@ public class AuthController {
         String token = authHeader.substring(7);
         try {
             FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(token);
+            if (!decodedToken.isEmailVerified()) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("Email Anda belum diverifikasi. Silakan verifikasi email Anda terlebih dahulu.");
+            }
             String uid = decodedToken.getUid();
 
             User user = userService.getUserByUid(uid);

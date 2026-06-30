@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { createUserWithEmailAndPassword, updateProfile, sendEmailVerification } from 'firebase/auth';
 import { auth } from '../services/firebase';
 import './Login.css'; // Kita sharing file css yang sama karena strukturnya mirip komik panel
 
@@ -8,7 +8,7 @@ export default function Register({ onNavigateToLogin, onRegisterSuccess }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [role, setRole] = useState('ROLE_MEMBER'); // ROLE_MEMBER | ROLE_ADMIN
+  const role = 'ROLE_MEMBER';
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -54,14 +54,18 @@ export default function Register({ onNavigateToLogin, onRegisterSuccess }) {
 
       const backendUser = await response.json();
 
-      // 4. Callback sukses masuk ke Dashboard
+      // 4. Kirim email verifikasi
+      await sendEmailVerification(user);
+
+      // 5. Callback sukses masuk ke Dashboard
       if (onRegisterSuccess) {
         onRegisterSuccess({
           uid: user.uid,
           email: user.email,
           name: name,
           token: token,
-          role: backendUser.role
+          role: backendUser.role,
+          emailVerified: false
         });
       }
     } catch (err) {
@@ -126,21 +130,6 @@ export default function Register({ onNavigateToLogin, onRegisterSuccess }) {
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
-            </div>
-
-            {/* Role / Peran */}
-            <div className="form-group">
-              <label htmlFor="role" className="form-label">PERAN / JABATAN KELAS</label>
-              <select
-                id="role"
-                className="form-input"
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                style={{ background: '#FFF', cursor: 'pointer' }}
-              >
-                <option value="ROLE_MEMBER">Anggota Kelas / Siswa</option>
-                <option value="ROLE_ADMIN">Bendahara / Admin</option>
-              </select>
             </div>
 
             {/* Password */}
