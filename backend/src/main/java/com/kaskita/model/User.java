@@ -15,6 +15,7 @@ public class User {
     private String email;
     private String role;
     private boolean active; // Renamed from 'isActive' to avoid Lombok/Firestore getter mismatch
+    private boolean invited; // Menandakan apakah member sudah diundang oleh admin
     private String fcmToken;
 }
 

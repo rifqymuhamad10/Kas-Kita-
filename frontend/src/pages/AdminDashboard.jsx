@@ -104,12 +104,55 @@ function AdminDashboard({ user, onLogout, onNavigate, isSidebarOpen, toggleSideb
     }
   }, [user]);
 
-  const [studentStatus] = useState([
-    { id: 's1', name: 'Ahmad', status: 'LUNAS', seed: 'Jack' },
-    { id: 's2', name: 'Budi', status: 'LUNAS', seed: 'Felix' },
-    { id: 's3', name: 'Citra', status: 'BELUM', seed: 'Jocelyn' },
-    { id: 's4', name: 'Dewi', status: 'LUNAS', seed: 'Avery' },
-  ]);
+  const [studentStatus, setStudentStatus] = useState([]);
+  const [totalStudents, setTotalStudents] = useState(0);
+  const [paidStudents, setPaidStudents] = useState(0);
+
+  useEffect(() => {
+    const fetchStatus = async () => {
+      try {
+        // Fetch all members
+        const membersRes = await fetch(`${API_BASE}/users/members`, {
+          headers: { 'Authorization': `Bearer ${user?.token}` }
+        });
+        // Fetch all bills
+        const billsRes = await fetch(`${API_BASE}/bills`, {
+          headers: { 'Authorization': `Bearer ${user?.token}` }
+        });
+
+        if (membersRes.ok && billsRes.ok) {
+          const members = await membersRes.json();
+          const bills = await billsRes.json();
+
+          // Filter only invited members
+          const invitedMembers = members.filter(m => m.invited);
+          setTotalStudents(invitedMembers.length);
+
+          // Calculate status for each member
+          let lunasCount = 0;
+          const statusList = invitedMembers.map(member => {
+            const memberBills = bills.filter(b => b.memberUid === member.uid);
+            const hasUnpaid = memberBills.some(b => b.status === 'UNPAID');
+            const status = hasUnpaid ? 'BELUM' : 'LUNAS';
+            if (status === 'LUNAS') lunasCount++;
+            return {
+              id: member.uid,
+              name: member.name,
+              status: status
+            };
+          });
+
+          setPaidStudents(lunasCount);
+          setStudentStatus(statusList);
+        }
+      } catch (err) {
+        console.error("Gagal mengambil status iuran:", err);
+      }
+    };
+    if (user?.token) fetchStatus();
+  }, [user]);
+
+  const progressPct = totalStudents > 0 ? (paidStudents / totalStudents) * 100 : 0;
 
   return (
     <div className="dashboard-layout manga-theme">
@@ -213,29 +256,31 @@ function AdminDashboard({ user, onLogout, onNavigate, isSidebarOpen, toggleSideb
               <div className="status-header-new">
                 <h3 className="card-title-new">STATUS IURAN KAS</h3>
                 <div className="ratio-text-new manga-box">
-                  <span>6 / 8 SISWA</span>
+                  <span>{paidStudents} / {totalStudents} SISWA</span>
                 </div>
               </div>
               
               <div className="progress-bar-container-new manga-border">
-                <div className="progress-fill-new manga-ink-bg" style={{ width: '75%' }}></div>
+                <div className="progress-fill-new manga-ink-bg" style={{ width: `${progressPct}%` }}></div>
               </div>
 
               <div className="student-grid">
-                {studentStatus.map(student => (
+                {studentStatus.slice(0, 5).map(student => (
                   <div className="student-card-new manga-box" key={student.id}>
                     <div className="student-avatar-initial manga-border">
                       {student.name.charAt(0)}
                     </div>
-                    <span className="student-name">{student.name}</span>
+                    <span className="student-name" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{student.name}</span>
                     <span className={`badge-new ${student.status === 'LUNAS' ? 'manga-ink-bg' : 'manga-white-bg text-semantic-red'}`}>
                       {student.status}
                     </span>
                   </div>
                 ))}
-                <div className="student-card-new see-all-card manga-box">
-                  <span className="see-all-text">LIHAT SEMUA ➔</span>
-                </div>
+                {studentStatus.length > 5 && (
+                  <div className="student-card-new see-all-card manga-box" onClick={() => onNavigate('kas-siswa')} style={{ cursor: 'pointer' }}>
+                    <span className="see-all-text">LIHAT SEMUA ➔</span>
+                  </div>
+                )}
               </div>
             </div>
           </div>

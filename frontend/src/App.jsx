@@ -54,12 +54,14 @@ function App() {
 
           let role = null;
           let displayName = currentUser.displayName || currentUser.email.split('@')[0];
+          let invited = false;
           
           if (meRes.ok) {
             const profile = await meRes.json();
             role = profile.role;
             displayName = profile.name || displayName;
-            console.log("Profile fetched successfully from backend. Role:", role);
+            invited = profile.invited || false;
+            console.log("Profile fetched successfully from backend. Role:", role, "Invited:", invited);
           } else {
             throw new Error(`Gagal ambil profil. Status: ${meRes.status}`);
           }
@@ -70,6 +72,7 @@ function App() {
             name: displayName,
             token: token,
             role: role,
+            invited: invited,
             emailVerified: true
           };
           console.log("Setting user state to:", userObj);
@@ -152,6 +155,7 @@ function App() {
             const loginUserObj = {
               ...userInfo,
               role: profile.role,
+              invited: profile.invited || false,
               name: profile.name || userInfo.name,
               emailVerified: true
             };
@@ -272,6 +276,15 @@ function App() {
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle></svg>
                   TARGET KELAS
                 </div>
+                <div className={`menu-item ${page === 'kas-siswa' ? 'active' : ''}`} onClick={() => handleNavigate('kas-siswa')}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                  </svg>
+                  KAS SISWA
+                </div>
               </>
             )}
             
@@ -290,6 +303,18 @@ function App() {
 
   // Render Page Content
   const renderPageContent = () => {
+    // LOCK SCREEN: Jika user adalah ROLE_MEMBER dan belum diundang (invited == false)
+    if (user && user.role === 'ROLE_MEMBER' && !user.invited && page !== 'profile') {
+      return (
+        <div className="dashboard-layout manga-theme" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#f5f5f5', width: '100%' }}>
+          <div className="manga-panel" style={{ padding: '3rem', textAlign: 'center', maxWidth: '500px' }}>
+            <h2 style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '2rem', marginBottom: '1rem', color: '#721c24' }}>AKSES TERKUNCI</h2>
+            <p style={{ fontSize: '1.2rem', marginBottom: '2rem' }}>Anda belum diundang ke dalam Kas Siswa oleh Bendahara. Silakan hubungi Bendahara kelas Anda untuk mendapatkan akses.</p>
+            <button className="manga-btn primary" onClick={handleLogout} style={{ padding: '0.8rem 2rem', fontWeight: 'bold' }}>KEMBALI / LOGOUT</button>
+          </div>
+        </div>
+      );
+    }
     if (page === 'kas-siswa' && isAdmin) {
       return (
         <AdminKasSiswaPage
@@ -375,6 +400,7 @@ function App() {
     return (
       <MemberDashboard
         user={user}
+        page={page}
         onLogout={handleLogout}
         onNavigate={handleNavigate}
         isSidebarOpen={isSidebarOpen}

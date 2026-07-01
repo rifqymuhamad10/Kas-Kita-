@@ -38,6 +38,7 @@ public class UserService {
                 .email(request.getEmail())
                 .role(role)
                 .active(true)
+                .invited(false) // By default, new members are not invited
                 .fcmToken(null)
                 .build();
 
@@ -56,5 +57,30 @@ public class UserService {
             return document.toObject(User.class);
         }
         return null; // Return null if user not found in Firestore
+    }
+
+    public java.util.List<User> getAllMembers() throws ExecutionException, InterruptedException {
+        com.google.cloud.firestore.QuerySnapshot querySnapshot = firestore.collection(COLLECTION_NAME)
+                .whereEqualTo("role", "ROLE_MEMBER")
+                .get().get();
+        java.util.List<User> members = new java.util.ArrayList<>();
+        for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+            members.add(doc.toObject(User.class));
+        }
+        return members;
+    }
+
+    public User inviteUser(String uid) throws ExecutionException, InterruptedException {
+        DocumentReference docRef = firestore.collection(COLLECTION_NAME).document(uid);
+        ApiFuture<DocumentSnapshot> future = docRef.get();
+        DocumentSnapshot document = future.get();
+        
+        if (document.exists()) {
+            User user = document.toObject(User.class);
+            user.setInvited(true);
+            docRef.set(user).get();
+            return user;
+        }
+        return null;
     }
 }

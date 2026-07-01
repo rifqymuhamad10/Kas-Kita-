@@ -3,7 +3,7 @@ import './Dashboard.css';
 
 const API_BASE = 'http://localhost:8080/api/v1';
 
-function MemberDashboard({ user, onLogout, onNavigate, isSidebarOpen, toggleSidebar }) {
+function MemberDashboard({ user, page, onLogout, onNavigate, isSidebarOpen, toggleSidebar }) {
   const displayName = user?.name || "Siswa";
   const displayRole = "SISWA";
 
@@ -16,6 +16,12 @@ function MemberDashboard({ user, onLogout, onNavigate, isSidebarOpen, toggleSide
   const [recentTransactions, setRecentTransactions] = useState([]);
   const [activeTarget, setActiveTarget] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // --- KAS SISWA DATA ---
+  const [bills, setBills] = useState([]);
+  const [myArrears, setMyArrears] = useState(0);
+  const [paymentAmount, setPaymentAmount] = useState('');
+  const [paymentLoading, setPaymentLoading] = useState(false);
 
   // Pie chart: kalkulasi pengeluaran per kategori dari data transaksi
   const CATEGORY_COLORS = [
@@ -104,6 +110,20 @@ function MemberDashboard({ user, onLogout, onNavigate, isSidebarOpen, toggleSide
             setActiveTarget(targets[0]);
           }
         }
+
+        // Fetch member bills
+        const billsRes = await fetch(`${API_BASE}/bills/member/${user?.uid}`, {
+          headers: { 'Authorization': `Bearer ${user?.token}` }
+        });
+        if (billsRes.ok) {
+          const billsData = await billsRes.json();
+          setBills(billsData);
+          let arrears = 0;
+          billsData.forEach(b => {
+            if (b.status === 'UNPAID') arrears += b.amountDue;
+          });
+          setMyArrears(arrears);
+        }
       } catch (err) {
         console.error("Gagal mengambil data dashboard:", err);
       } finally {
@@ -115,6 +135,35 @@ function MemberDashboard({ user, onLogout, onNavigate, isSidebarOpen, toggleSide
       fetchData();
     }
   }, [user]);
+
+  const handlePaymentSubmit = async () => {
+    if (!paymentAmount || isNaN(paymentAmount) || paymentAmount <= 0) return alert('Nominal harus valid');
+    setPaymentLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/payments/submit`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user?.token}`
+        },
+        body: JSON.stringify({
+          memberUid: user?.uid,
+          amount: parseFloat(paymentAmount)
+        })
+      });
+      if (res.ok) {
+        alert('Pengajuan pembayaran berhasil dikirim! Menunggu persetujuan Admin.');
+        setPaymentAmount('');
+      } else {
+        alert('Gagal mengirim pengajuan.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Terjadi kesalahan saat mengajukan pembayaran.');
+    } finally {
+      setPaymentLoading(false);
+    }
+  };
 
   return (
     <div className="dashboard-layout manga-theme">
@@ -161,8 +210,8 @@ function MemberDashboard({ user, onLogout, onNavigate, isSidebarOpen, toggleSide
 
             <div className="summary-card expense manga-panel">
               <div className="card-info">
-                <p className="card-label">PENGELUARAN</p>
-                <h3 className="card-amount text-semantic-red">Rp {expense.toLocaleString('id-ID')}</h3>
+                <p className="card-label">TOTAL TAGIHAN SAYA</p>
+                <h3 className="card-amount text-semantic-red">Rp {myArrears.toLocaleString('id-ID')}</h3>
               </div>
             </div>
           </div>
@@ -217,95 +266,116 @@ function MemberDashboard({ user, onLogout, onNavigate, isSidebarOpen, toggleSide
               </div>
             </div>
 
-            {/* Kanan: Status Target Kelas */}
-            <div className="dashboard-card status-card manga-panel" style={{ display: 'flex', flexDirection: 'column', justifyItems: 'center', justifyContent: 'center' }}>
-              {activeTarget ? (
-                <>
-                  <div className="status-header-new">
-                    <h3 className="card-title-new" style={{ textTransform: 'uppercase' }}>TARGET KELAS: {activeTarget.name}</h3>
-                    <div className="ratio-text-new manga-box">
-                      <span className="ratio-highlight" style={{ fontSize: '1.2rem' }}>
-                        {Math.min(Math.round((balance / activeTarget.targetAmount) * 100), 100)}%
-                      </span>
-                    </div>
-                  </div>
-                  
-                  <div className="progress-bar-container-new manga-border">
-                    <div className="progress-fill-new manga-ink-bg" style={{ width: `${Math.min(Math.round((balance / activeTarget.targetAmount) * 100), 100)}%` }}></div>
-                  </div>
-
-                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem 0' }}>
-                    <div>
-                      <p className="mono-text" style={{ margin: 0, fontSize: '0.9rem', fontWeight: 700 }}>TERKUMPUL</p>
-                      <h4 className="mono-text" style={{ margin: '4px 0 0 0', fontSize: '1.2rem', fontWeight: 800 }}>RP {balance.toLocaleString('id-ID')}</h4>
-                    </div>
-                    <div style={{ textAlign: 'right' }}>
-                      <p className="mono-text" style={{ margin: 0, fontSize: '0.9rem', fontWeight: 700 }}>GOAL TARGET</p>
-                      <h4 className="mono-text" style={{ margin: '4px 0 0 0', fontSize: '1.2rem', fontWeight: 800 }}>RP {activeTarget.targetAmount.toLocaleString('id-ID')}</h4>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <div style={{ textAlign: 'center', padding: '1rem' }}>
-                  <h3 className="card-title-new" style={{ margin: '0 0 10px 0' }}>TARGET KELAS</h3>
-                  <div className="manga-box" style={{ padding: '1rem', background: 'var(--screentone)', backgroundSize: '5px 5px', border: '2px solid var(--manga-ink)' }}>
-                    <p style={{ fontWeight: 800, margin: 0 }}>BELUM ADA TARGET AKTIF</p>
-                    <p style={{ fontSize: '0.8rem', fontWeight: 600, margin: '5px 0 0 0' }}>Cek kembali nanti saat Bendahara menambahkan target baru.</p>
-                  </div>
-                </div>
-              )}
+            {/* Kanan: Form Pengajuan Pembayaran */}
+            <div className="dashboard-card status-card manga-panel" style={{ display: 'flex', flexDirection: 'column', justifyItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
+              <div className="status-header-new">
+                <h3 className="card-title-new" style={{ textTransform: 'uppercase' }}>PENGAJUAN PEMBAYARAN</h3>
+              </div>
+              <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 600 }}>Masukkan nominal yang telah Anda bayarkan/transfer kepada Bendahara untuk dikonfirmasi.</p>
+                <input 
+                  type="number" 
+                  value={paymentAmount} 
+                  onChange={e => setPaymentAmount(e.target.value)} 
+                  placeholder="Contoh: 10000" 
+                  style={{ padding: '0.8rem', border: '2px solid #000', fontSize: '1rem', fontFamily: 'JetBrains Mono, monospace' }}
+                />
+                <button 
+                  className="manga-btn primary" 
+                  onClick={handlePaymentSubmit} 
+                  disabled={paymentLoading || myArrears === 0} 
+                  style={{ padding: '0.8rem', fontWeight: 'bold' }}
+                >
+                  {paymentLoading ? 'MENGIRIM...' : (myArrears === 0 ? 'TIDAK ADA TAGIHAN' : 'AJUKAN KONFIRMASI')}
+                </button>
+              </div>
             </div>
           </div>
 
-          {/* ROW 3: RIWAYAT TRANSAKSI */}
+          {/* ROW 3: RIWAYAT TRANSAKSI ATAU RIWAYAT IURAN */}
           <div className="table-card manga-panel">
             <div className="table-header-container">
-              <h3 className="transaction-title">RIWAYAT TRANSAKSI</h3>
+              <h3 className="transaction-title">
+                {page === 'kas-siswa' ? 'RIWAYAT IURAN' : 'RIWAYAT TRANSAKSI'}
+              </h3>
             </div>
             
             <div className="table-responsive">
-              <table className="transaction-table">
-                <thead>
-                  <tr>
-                    <th>TANGGAL</th>
-                    <th>TIPE</th>
-                    <th>KATEGORI</th>
-                    <th>KETERANGAN</th>
-                    <th>JUMLAH</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recentTransactions.length === 0 ? (
+              {page === 'kas-siswa' ? (
+                <table className="transaction-table">
+                  <thead>
                     <tr>
-                      <td colSpan="5" style={{ textAlign: 'center', padding: '2rem', fontWeight: 700 }}>
-                        BELUM ADA TRANSAKSI
-                      </td>
+                      <th>ID TAGIHAN</th>
+                      <th>STATUS</th>
+                      <th>JUMLAH</th>
                     </tr>
-                  ) : (
-                    recentTransactions.slice(0, 5).map(tx => (
-                      <tr key={tx.id}>
-                        <td className="col-date mono-text">
-                          {tx.timestamp ? new Date(tx.timestamp).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase() : '-'}
-                        </td>
-                        <td>
-                          <span className={`cat-badge manga-box ${tx.type === 'INCOME' ? 'manga-ink-bg' : 'manga-white-bg text-semantic-red'}`}>
-                            {tx.type === 'INCOME' ? 'PEMASUKAN' : 'PENGELUARAN'}
-                          </span>
-                        </td>
-                        <td>
-                          <span className="cat-badge manga-box">
-                            {tx.category || 'LAINNYA'}
-                          </span>
-                        </td>
-                        <td className="col-desc">{(tx.description || '').toUpperCase()}</td>
-                        <td className={`mono-text ${tx.type === 'INCOME' ? '' : 'text-semantic-red'}`}>
-                          {tx.type === 'INCOME' ? '+RP ' : '-RP '}{(tx.amount || 0).toLocaleString('id-ID')}
+                  </thead>
+                  <tbody>
+                    {bills.length === 0 ? (
+                      <tr>
+                        <td colSpan="3" style={{ textAlign: 'center', padding: '2rem', fontWeight: 700 }}>
+                          BELUM ADA TAGIHAN
                         </td>
                       </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
+                    ) : (
+                      bills.map(b => (
+                        <tr key={b.id}>
+                          <td className="col-desc mono-text">{b.id.substring(0, 8)}...</td>
+                          <td>
+                            <span className={`cat-badge manga-box ${b.status === 'PAID' ? 'manga-ink-bg' : 'manga-white-bg text-semantic-red'}`}>
+                              {b.status === 'PAID' ? 'LUNAS' : 'BELUM LUNAS'}
+                            </span>
+                          </td>
+                          <td className="mono-text">Rp {(b.amountDue || 0).toLocaleString('id-ID')}</td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              ) : (
+                <table className="transaction-table">
+                  <thead>
+                    <tr>
+                      <th>TANGGAL</th>
+                      <th>TIPE</th>
+                      <th>KATEGORI</th>
+                      <th>KETERANGAN</th>
+                      <th>JUMLAH</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recentTransactions.length === 0 ? (
+                      <tr>
+                        <td colSpan="5" style={{ textAlign: 'center', padding: '2rem', fontWeight: 700 }}>
+                          BELUM ADA TRANSAKSI
+                        </td>
+                      </tr>
+                    ) : (
+                      recentTransactions.slice(0, 5).map(tx => (
+                        <tr key={tx.id}>
+                          <td className="col-date mono-text">
+                            {tx.timestamp ? new Date(tx.timestamp).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase() : '-'}
+                          </td>
+                          <td>
+                            <span className={`cat-badge manga-box ${tx.type === 'INCOME' ? 'manga-ink-bg' : 'manga-white-bg text-semantic-red'}`}>
+                              {tx.type === 'INCOME' ? 'PEMASUKAN' : 'PENGELUARAN'}
+                            </span>
+                          </td>
+                          <td>
+                            <span className="cat-badge manga-box">
+                              {tx.category || 'LAINNYA'}
+                            </span>
+                          </td>
+                          <td className="col-desc">{(tx.description || '').toUpperCase()}</td>
+                          <td className={`mono-text ${tx.type === 'INCOME' ? '' : 'text-semantic-red'}`}>
+                            {tx.type === 'INCOME' ? '+RP ' : '-RP '}{(tx.amount || 0).toLocaleString('id-ID')}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              )}
             </div>
           </div>
 
