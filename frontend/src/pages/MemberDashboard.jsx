@@ -118,42 +118,6 @@ function MemberDashboard({ user, onLogout, onNavigate, isSidebarOpen, toggleSide
 
   return (
     <div className="dashboard-layout manga-theme">
-      
-      {/* OVERLAY & SIDEBAR */}
-      {isSidebarOpen && <div className="sidebar-overlay desktop-hide" onClick={toggleSidebar}></div>}
-      <aside className={`sidebar manga-panel ${isSidebarOpen ? 'open' : 'closed'}`}>
-        
-        <div className="sidebar-logo">
-          <div className="logo-box"></div>
-          <div className="logo-text">
-            <h2>KASKITA</h2>
-            <p>MANAGEMENT</p>
-          </div>
-        </div>
-        
-        <nav className="sidebar-menu">
-          <div className="menu-item active">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-            DASHBOARD
-          </div>
-          <div className="menu-item" onClick={() => onNavigate('transactions')}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
-            TRANSAKSI
-          </div>
-          <div className="menu-item" onClick={() => onNavigate('target')}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle></svg>
-            TARGET KELAS
-          </div>
-          
-          <div className="sidebar-bottom">
-            <div className="sidebar-divider"></div>
-            <div className="menu-item logout-btn" onClick={() => setShowLogoutModal(true)}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-              LOG OUT
-            </div>
-          </div>
-        </nav>
-      </aside>
 
       {/* --- MAIN CONTENT --- */}
       <main className="main-content">

@@ -69,7 +69,7 @@ function MemberTargetPage({ user, onLogout, onNavigate, isSidebarOpen, toggleSid
             <button className="hamburger-btn" onClick={toggleSidebar}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" strokeWidth="3" strokeLinecap="square"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
             </button>
-            <h1 className="page-title">TARGET KELAS</h1>
+            <h1 className="page-title">CHAPTER 3: TARGET KELAS</h1>
           </div>
           
           <div className="header-controls">
