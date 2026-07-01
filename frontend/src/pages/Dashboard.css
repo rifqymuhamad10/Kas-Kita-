@@ -720,20 +720,62 @@
   background-color: var(--semantic-red);
   color: var(--manga-white);
 }
-
 /* ================= RESPONSIVE ================= */
+.desktop-hide {
+  display: none !important;
+}
+
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 999;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.student-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 1rem;
+}
+
 @media (max-width: 1024px) {
   .hamburger-btn { display: block; }
-  .desktop-hide { display: block; }
+  .desktop-hide { display: block !important; }
   
   .sidebar {
     position: fixed;
-    height: calc(100vh - 2rem);
-    z-index: 100;
-    transform: translateX(-120%); 
+    top: 0;
+    left: 0;
+    height: 100vh;
+    margin: 0;
+    border-radius: 0;
+    z-index: 1000;
+    transform: translateX(-110%); 
     opacity: 1; 
+    box-shadow: 6px 0 20px rgba(0,0,0,0.3);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
   .sidebar.open { transform: translateX(0); }
+  
+  .main-content {
+    padding: 1rem;
+  }
   
   .summary-cards-row {
     grid-template-columns: 1fr; /* Stack on mobile */
@@ -741,3 +783,22 @@
   .grid-row-2 { flex-direction: column; }
   .chart-placeholder-new { flex-direction: column; }
 }
+
+@media (max-width: 768px) {
+  .top-header {
+    padding: 1rem;
+  }
+  .page-title {
+    font-size: 1.4rem;
+  }
+  .profile-wrapper {
+    padding: 0.3rem 0.5rem;
+  }
+  .profile-name {
+    font-size: 0.85rem;
+  }
+  .profile-role {
+    font-size: 0.65rem;
+  }
+}
+

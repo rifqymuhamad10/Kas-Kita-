@@ -73,11 +73,43 @@ function MemberTargetPage({ user, onLogout, onNavigate, isSidebarOpen, toggleSid
           </div>
           
           <div className="header-controls">
-            <div className="profile-wrapper manga-box">
+            <div className="profile-wrapper manga-box" onClick={() => onNavigate('profile')} style={{ cursor: 'pointer', display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
               <div className="profile-text">
                 <span className="profile-name">{displayName.toUpperCase()}</span>
                 <span className="profile-role">{displayRole}</span>
               </div>
+              {user?.photoUrl ? (
+                <img 
+                  src={user.photoUrl} 
+                  alt="Avatar" 
+                  style={{ 
+                    width: '36px', 
+                    height: '36px', 
+                    objectFit: 'cover', 
+                    border: '2px solid var(--manga-ink)',
+                    borderRadius: '4px',
+                    backgroundColor: '#fff'
+                  }} 
+                />
+              ) : (
+                <div 
+                  style={{ 
+                    width: '36px', 
+                    height: '36px', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center', 
+                    backgroundColor: '#1a1a1a', 
+                    color: '#fff', 
+                    fontWeight: 'bold', 
+                    fontSize: '1rem',
+                    border: '2px solid var(--manga-ink)',
+                    borderRadius: '4px'
+                  }}
+                >
+                  {(displayName || 'U').charAt(0).toUpperCase()}
+                </div>
+              )}
             </div>
           </div>
         </header>

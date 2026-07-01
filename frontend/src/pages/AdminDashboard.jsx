@@ -138,7 +138,8 @@ function AdminDashboard({ user, onLogout, onNavigate, isSidebarOpen, toggleSideb
             return {
               id: member.uid,
               name: member.name,
-              status: status
+              status: status,
+              photoUrl: member.photoUrl || null
             };
           });
 
@@ -170,11 +171,43 @@ function AdminDashboard({ user, onLogout, onNavigate, isSidebarOpen, toggleSideb
           </div>
           
           <div className="header-controls">
-            <div className="profile-wrapper manga-box" onClick={() => onNavigate('profile')} style={{ cursor: 'pointer' }}>
+            <div className="profile-wrapper manga-box" onClick={() => onNavigate('profile')} style={{ cursor: 'pointer', display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
               <div className="profile-text">
                 <span className="profile-name">{displayName}</span>
                 <span className="profile-role">{displayRole}</span>
               </div>
+              {user?.photoUrl ? (
+                <img 
+                  src={user.photoUrl} 
+                  alt="Avatar" 
+                  style={{ 
+                    width: '36px', 
+                    height: '36px', 
+                    objectFit: 'cover', 
+                    border: '2px solid var(--manga-ink)',
+                    borderRadius: '4px',
+                    backgroundColor: '#fff'
+                  }} 
+                />
+              ) : (
+                <div 
+                  style={{ 
+                    width: '36px', 
+                    height: '36px', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center', 
+                    backgroundColor: '#1a1a1a', 
+                    color: '#fff', 
+                    fontWeight: 'bold', 
+                    fontSize: '1rem',
+                    border: '2px solid var(--manga-ink)',
+                    borderRadius: '4px'
+                  }}
+                >
+                  {(displayName || 'U').charAt(0).toUpperCase()}
+                </div>
+              )}
             </div>
           </div>
         </header>
@@ -267,9 +300,23 @@ function AdminDashboard({ user, onLogout, onNavigate, isSidebarOpen, toggleSideb
               <div className="student-grid">
                 {studentStatus.slice(0, 5).map(student => (
                   <div className="student-card-new manga-box" key={student.id}>
-                    <div className="student-avatar-initial manga-border">
-                      {student.name.charAt(0)}
-                    </div>
+                    {student.photoUrl ? (
+                      <img 
+                        src={student.photoUrl} 
+                        alt={student.name} 
+                        className="student-avatar-initial manga-border" 
+                        style={{ 
+                          width: '40px', 
+                          height: '40px', 
+                          objectFit: 'cover',
+                          backgroundColor: '#fff'
+                        }} 
+                      />
+                    ) : (
+                      <div className="student-avatar-initial manga-border">
+                        {student.name.charAt(0).toUpperCase()}
+                      </div>
+                    )}
                     <span className="student-name" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{student.name}</span>
                     <span className={`badge-new ${student.status === 'LUNAS' ? 'manga-ink-bg' : 'manga-white-bg text-semantic-red'}`}>
                       {student.status}

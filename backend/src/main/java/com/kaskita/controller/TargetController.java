@@ -59,11 +59,18 @@ public class TargetController {
     public ResponseEntity<String> createTarget(@RequestBody TargetRequest request,
                                                 Authentication authentication) {
         try {
+            String targetId = java.util.UUID.randomUUID().toString();
+            String imageUrl = request.getImageUrl();
+            if (imageUrl != null && imageUrl.startsWith("data:image/")) {
+                imageUrl = saveTargetImage(targetId, imageUrl);
+            }
+
             Target target = Target.builder()
+                    .id(targetId)
                     .name(request.getName())
                     .description(request.getDescription())
                     .targetAmount(request.getTargetAmount())
-                    .imageUrl(request.getImageUrl())
+                    .imageUrl(imageUrl)
                     .deadline(request.getDeadline())
                     .priority(request.getPriority() != null ? request.getPriority() : "MEDIUM")
                     .status("ACTIVE")
@@ -88,10 +95,17 @@ public class TargetController {
                 return ResponseEntity.notFound().build();
             }
 
+            String imageUrl = request.getImageUrl();
+            if (imageUrl != null && imageUrl.startsWith("data:image/")) {
+                imageUrl = saveTargetImage(id, imageUrl);
+            }
+
             existing.setName(request.getName() != null ? request.getName() : existing.getName());
             existing.setDescription(request.getDescription() != null ? request.getDescription() : existing.getDescription());
             existing.setTargetAmount(request.getTargetAmount() != null ? request.getTargetAmount() : existing.getTargetAmount());
-            existing.setImageUrl(request.getImageUrl() != null ? request.getImageUrl() : existing.getImageUrl());
+            if (imageUrl != null) {
+                existing.setImageUrl(imageUrl);
+            }
             existing.setDeadline(request.getDeadline() != null ? request.getDeadline() : existing.getDeadline());
             existing.setPriority(request.getPriority() != null ? request.getPriority() : existing.getPriority());
 
@@ -139,5 +153,33 @@ public class TargetController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
+    }
+
+    private String saveTargetImage(String targetId, String base64Image) throws Exception {
+        String[] parts = base64Image.split(",");
+        String header = parts[0];
+        String base64Data = parts[1];
+
+        String extension = "jpg";
+        if (header.contains("image/png")) {
+            extension = "png";
+        } else if (header.contains("image/webp")) {
+            extension = "webp";
+        } else if (header.contains("image/gif")) {
+            extension = "gif";
+        }
+
+        byte[] imageBytes = java.util.Base64.getDecoder().decode(base64Data);
+
+        java.nio.file.Path uploadPath = java.nio.file.Paths.get("uploads");
+        if (!java.nio.file.Files.exists(uploadPath)) {
+            java.nio.file.Files.createDirectories(uploadPath);
+        }
+
+        String filename = "target-" + targetId + "." + extension;
+        java.nio.file.Path filePath = uploadPath.resolve(filename);
+        java.nio.file.Files.write(filePath, imageBytes);
+
+        return "http://localhost:8080/uploads/" + filename;
     }
 }

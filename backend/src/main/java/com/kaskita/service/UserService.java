@@ -83,4 +83,9 @@ public class UserService {
         }
         return null;
     }
+
+    public void updateUser(User user) throws ExecutionException, InterruptedException {
+        DocumentReference docRef = firestore.collection(COLLECTION_NAME).document(user.getUid());
+        docRef.set(user).get();
+    }
 }

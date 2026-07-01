@@ -80,6 +80,27 @@ function AdminTargetPage({ user, onLogout, onNavigate, isSidebarOpen, toggleSide
     setShowFormModal(true);
   };
 
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    if (!allowedTypes.includes(file.type)) {
+      alert('Format file tidak didukung. Gunakan gambar JPG, PNG, WEBP, atau GIF.');
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      alert('Ukuran file maksimal adalah 2MB.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setFormData(prev => ({ ...prev, imageUrl: reader.result }));
+    };
+    reader.readAsDataURL(file);
+  };
+
   // Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -177,11 +198,43 @@ function AdminTargetPage({ user, onLogout, onNavigate, isSidebarOpen, toggleSide
           </div>
           
           <div className="header-controls">
-            <div className="profile-wrapper manga-box">
+            <div className="profile-wrapper manga-box" onClick={() => onNavigate('profile')} style={{ cursor: 'pointer', display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
               <div className="profile-text">
                 <span className="profile-name">{displayName}</span>
                 <span className="profile-role">{displayRole}</span>
               </div>
+              {user?.photoUrl ? (
+                <img 
+                  src={user.photoUrl} 
+                  alt="Avatar" 
+                  style={{ 
+                    width: '36px', 
+                    height: '36px', 
+                    objectFit: 'cover', 
+                    border: '2px solid var(--manga-ink)',
+                    borderRadius: '4px',
+                    backgroundColor: '#fff'
+                  }} 
+                />
+              ) : (
+                <div 
+                  style={{ 
+                    width: '36px', 
+                    height: '36px', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center', 
+                    backgroundColor: '#1a1a1a', 
+                    color: '#fff', 
+                    fontWeight: 'bold', 
+                    fontSize: '1rem',
+                    border: '2px solid var(--manga-ink)',
+                    borderRadius: '4px'
+                  }}
+                >
+                  {(displayName || 'U').charAt(0).toUpperCase()}
+                </div>
+              )}
             </div>
           </div>
         </header>
@@ -341,13 +394,42 @@ function AdminTargetPage({ user, onLogout, onNavigate, isSidebarOpen, toggleSide
                     onChange={(e) => setFormData({...formData, deadline: e.target.value})}
                   />
                 </div>
-                <div className="form-group">
-                  <label className="form-label">URL GAMBAR (OPSIONAL)</label>
-                  <input className="form-input" type="url"
-                    value={formData.imageUrl}
-                    onChange={(e) => setFormData({...formData, imageUrl: e.target.value})}
-                    placeholder="https://..."
+                 <div className="form-group">
+                  <label className="form-label">GAMBAR TARGET (OPSIONAL)</label>
+                  <input className="form-input" type="file" accept="image/*"
+                    onChange={handleFileChange}
+                    style={{ textTransform: 'none' }}
                   />
+                  {formData.imageUrl && (
+                    <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <img 
+                        src={formData.imageUrl} 
+                        alt="Preview" 
+                        style={{ 
+                          width: '40px', 
+                          height: '40px', 
+                          objectFit: 'cover', 
+                          border: '2px solid var(--manga-ink)', 
+                          borderRadius: '4px' 
+                        }} 
+                      />
+                      <button 
+                        type="button" 
+                        onClick={() => setFormData({...formData, imageUrl: ''})} 
+                        style={{ 
+                          background: 'none', 
+                          border: 'none', 
+                          color: 'var(--semantic-red)', 
+                          cursor: 'pointer', 
+                          fontWeight: '800',
+                          fontSize: '0.8rem',
+                          textDecoration: 'underline'
+                        }}
+                      >
+                        HAPUS
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
               <div className="target-modal-actions">

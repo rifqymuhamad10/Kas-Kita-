@@ -62,6 +62,14 @@ function Profile({ user, onLogout, onNavigate, onUserUpdate }) {
     reader.readAsDataURL(file);
   };
 
+  const handleRemovePhoto = () => {
+    setPhotoPreview(null);
+    setPhotoChanged(true);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   const handleSave = async () => {
     setError('');
     setSuccess('');
@@ -156,6 +164,30 @@ function Profile({ user, onLogout, onNavigate, onUserUpdate }) {
                   />
                 </label>
               </div>
+
+              {photoPreview && (
+                <button 
+                  type="button" 
+                  onClick={handleRemovePhoto} 
+                  className="manga-btn"
+                  style={{ 
+                    marginTop: '0.5rem', 
+                    fontSize: '0.85rem', 
+                    fontWeight: '800',
+                    padding: '0.3rem 0.8rem', 
+                    backgroundColor: '#fff', 
+                    color: 'var(--semantic-red)', 
+                    borderColor: 'var(--semantic-red)',
+                    boxShadow: '2px 2px 0 var(--semantic-red)',
+                    width: 'auto',
+                    cursor: 'pointer',
+                    borderRadius: '4px',
+                    transition: 'all 0.1s'
+                  }}
+                >
+                  HAPUS FOTO
+                </button>
+              )}
 
               <p className="profile-hint">Format: JPG, PNG, WEBP, GIF. Maks 2MB. File video (MP4) tidak diizinkan.</p>
 

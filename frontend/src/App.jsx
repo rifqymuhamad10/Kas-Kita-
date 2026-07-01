@@ -95,12 +95,14 @@ function App() {
           let role = null;
           let displayName = currentUser.displayName || currentUser.email.split('@')[0];
           let invited = false;
+          let photoUrl = null;
           
           if (meRes.ok) {
             const profile = await meRes.json();
             role = profile.role;
             displayName = profile.name || displayName;
             invited = profile.invited || false;
+            photoUrl = profile.photoUrl || null;
             console.log("Profile fetched successfully from backend. Role:", role, "Invited:", invited);
           } else {
             throw new Error(`Gagal ambil profil. Status: ${meRes.status}`);
@@ -113,6 +115,7 @@ function App() {
             token: token,
             role: role,
             invited: invited,
+            photoUrl: photoUrl,
             emailVerified: true
           };
           console.log("Setting user state to:", userObj);
@@ -197,6 +200,7 @@ function App() {
               role: profile.role,
               invited: profile.invited || false,
               name: profile.name || userInfo.name,
+              photoUrl: profile.photoUrl || null,
               emailVerified: true
             };
             console.log("onLoginSuccess: Setting user state to:", loginUserObj);
@@ -245,6 +249,7 @@ function App() {
               name: profile.name || auth.currentUser.displayName || auth.currentUser.email.split('@')[0],
               token: token,
               role: profile.role,
+              photoUrl: profile.photoUrl || null,
               emailVerified: true
             });
             setPage('dashboard');
@@ -301,6 +306,13 @@ function App() {
                   </svg>
                   KAS SISWA
                 </div>
+                <div className={`menu-item ${page === 'profile' ? 'active' : ''}`} onClick={() => handleNavigate('profile')}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+                  PROFIL
+                </div>
               </>
             ) : (
               <>
@@ -324,6 +336,13 @@ function App() {
                     <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                   </svg>
                   KAS SISWA
+                </div>
+                <div className={`menu-item ${page === 'profile' ? 'active' : ''}`} onClick={() => handleNavigate('profile')}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+                  PROFIL
                 </div>
               </>
             )}
@@ -521,6 +540,7 @@ function App() {
           user={user} 
           onLogout={handleLogout}
           onNavigate={handleNavigate}
+          onUserUpdate={(updatedUser) => setUser(updatedUser)}
           isSidebarOpen={isSidebarOpen}
           toggleSidebar={toggleSidebar}
         />

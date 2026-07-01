@@ -19,5 +19,6 @@ public class User {
     private String fcmToken;
     private String telegramChatId;
     private boolean telegramLinked;
+    private String photoUrl;
 }
 
