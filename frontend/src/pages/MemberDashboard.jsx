@@ -132,7 +132,7 @@ function MemberDashboard({ user, onLogout, onNavigate, isSidebarOpen, toggleSide
           </div>
           
           <div className="header-controls">
-            <div className="profile-wrapper manga-box">
+            <div className="profile-wrapper manga-box" onClick={() => onNavigate('profile')} style={{ cursor: 'pointer' }}>
               <div className="profile-text">
                 <span className="profile-name">{displayName.toUpperCase()}</span>
                 <span className="profile-role">{displayRole}</span>
@@ -311,21 +311,6 @@ function MemberDashboard({ user, onLogout, onNavigate, isSidebarOpen, toggleSide
 
         </div>
       </main>
-
-      {/* --- POPUP KONFIRMASI LOGOUT --- */}
-      {showLogoutModal && (
-        <div className="modal-overlay-custom">
-          <div className="modal-box manga-panel action-burst">
-            <h3 className="modal-title impact-text">YAKIN MAU KELUAR?!</h3>
-            <p className="modal-text">Kamu harus login lagi nanti!</p>
-            <div className="modal-actions">
-              <button className="btn-modal-cancel manga-btn" onClick={() => setShowLogoutModal(false)}>BATAL</button>
-              <button className="btn-modal-confirm manga-btn active" onClick={onLogout}>YA, KELUAR!</button>
-            </div>
-          </div>
-        </div>
-      )}
-
     </div>
   );
 }
