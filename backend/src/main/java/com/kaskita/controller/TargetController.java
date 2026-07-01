@@ -11,11 +11,16 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
+
 @RestController
 @RequestMapping("/api/v1/targets")
 public class TargetController {
 
     private final TargetService targetService;
+
+    @Value("${app.backend-url:http://localhost:8080}")
+    private String backendUrl;
 
     public TargetController(TargetService targetService) {
         this.targetService = targetService;
@@ -180,6 +185,6 @@ public class TargetController {
         java.nio.file.Path filePath = uploadPath.resolve(filename);
         java.nio.file.Files.write(filePath, imageBytes);
 
-        return "http://localhost:8080/uploads/" + filename;
+        return backendUrl + "/uploads/" + filename;
     }
 }

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { createUserWithEmailAndPassword, updateProfile, sendEmailVerification } from 'firebase/auth';
 import { auth } from '../services/firebase';
 import './Login.css'; // Kita sharing file css yang sama karena strukturnya mirip komik panel
+import { API_V1_BASE } from '../config';
 
 export default function Register({ onNavigateToLogin, onRegisterSuccess }) {
   const [name, setName] = useState('');
@@ -34,7 +35,7 @@ export default function Register({ onNavigateToLogin, onRegisterSuccess }) {
       const token = await user.getIdToken();
 
       // 3. Daftarkan detail user ke Database Backend (Spring Boot + Firestore)
-      const response = await fetch('http://localhost:8080/api/v1/auth/register', {
+      const response = await fetch(`${API_V1_BASE}/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

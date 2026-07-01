@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import './Dashboard.css';
 import './MemberTransactionPage.css';
+import { API_V1_BASE } from '../config';
 
-const API_BASE = 'http://localhost:8080/api/v1';
+const API_BASE = API_V1_BASE;
 const CATEGORIES = ['ALL', 'IURAN KAS', 'KONSUMSI', 'ATK', 'KEGIATAN', 'LAINNYA'];
 
 function MemberTransactionPage({ user, onLogout, onNavigate, isSidebarOpen, toggleSidebar }) {

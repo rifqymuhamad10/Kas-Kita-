@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import './Dashboard.css';
 import './MemberTargetPage.css';
+import { API_V1_BASE } from '../config';
 
-const API_BASE = 'http://localhost:8080/api/v1';
+const API_BASE = API_V1_BASE;
 
 function MemberTargetPage({ user, onLogout, onNavigate, isSidebarOpen, toggleSidebar }) {
   const displayName = user?.name || "Siswa";

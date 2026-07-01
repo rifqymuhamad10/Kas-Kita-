@@ -3,8 +3,9 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '../services/firebase';
 import './Dashboard.css';
 import './AdminTransactionPage.css';
+import { API_V1_BASE } from '../config';
 
-const API_BASE = 'http://localhost:8080/api/v1';
+const API_BASE = API_V1_BASE;
 const CATEGORIES = ['IURAN KAS', 'KONSUMSI', 'ATK', 'KEGIATAN', 'LAINNYA'];
 
 function AdminTransactionPage({ user, onLogout, onNavigate, isSidebarOpen, toggleSidebar }) {

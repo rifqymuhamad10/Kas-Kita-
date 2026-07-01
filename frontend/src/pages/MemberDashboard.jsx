@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import './Dashboard.css';
+import { BASE_URL, API_V1_BASE, API_BASE as CENTRAL_API_BASE } from '../config';
 
-const API_BASE = 'http://localhost:8080/api/v1';
+const API_BASE = API_V1_BASE;
 
 function MemberDashboard({ user, page, onLogout, onNavigate, isSidebarOpen, toggleSidebar }) {
   const displayName = user?.name || "Siswa";
@@ -117,7 +118,7 @@ function MemberDashboard({ user, page, onLogout, onNavigate, isSidebarOpen, togg
         }
 
         // Fetch member bills
-        const billsRes = await fetch(`http://localhost:8080/api/bills/member/${user?.uid}`, {
+        const billsRes = await fetch(`${CENTRAL_API_BASE}/bills/member/${user?.uid}`, {
           headers: { 'Authorization': `Bearer ${user?.token}` }
         });
         if (billsRes.ok) {
@@ -131,7 +132,7 @@ function MemberDashboard({ user, page, onLogout, onNavigate, isSidebarOpen, togg
         }
 
         // Fetch user data terbaru dari /me untuk update status Telegram
-        const userRes = await fetch(`http://localhost:8080/api/v1/auth/me`, {
+        const userRes = await fetch(`${API_V1_BASE}/auth/me`, {
           headers: { 'Authorization': `Bearer ${user?.token}` }
         });
         if (userRes.ok) {
@@ -156,7 +157,7 @@ function MemberDashboard({ user, page, onLogout, onNavigate, isSidebarOpen, togg
     if (telegramLinkUrl && !telegramLinked) {
       interval = setInterval(async () => {
         try {
-          const userRes = await fetch(`http://localhost:8080/api/v1/auth/me`, {
+          const userRes = await fetch(`${API_V1_BASE}/auth/me`, {
             headers: { 'Authorization': `Bearer ${user?.token}` }
           });
           if (userRes.ok) {
@@ -178,7 +179,7 @@ function MemberDashboard({ user, page, onLogout, onNavigate, isSidebarOpen, togg
   const handleConnectTelegram = async () => {
     setTelegramLoadingToken(true);
     try {
-      const res = await fetch(`http://localhost:8080/api/telegram/generate-link`, {
+      const res = await fetch(`${CENTRAL_API_BASE}/telegram/generate-link`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -202,7 +203,7 @@ function MemberDashboard({ user, page, onLogout, onNavigate, isSidebarOpen, togg
 
   const checkTelegramStatus = async () => {
     try {
-      const userRes = await fetch(`http://localhost:8080/api/v1/auth/me`, {
+      const userRes = await fetch(`${API_V1_BASE}/auth/me`, {
         headers: { 'Authorization': `Bearer ${user?.token}` }
       });
       if (userRes.ok) {
@@ -225,7 +226,7 @@ function MemberDashboard({ user, page, onLogout, onNavigate, isSidebarOpen, togg
     if (!paymentAmount || isNaN(paymentAmount) || paymentAmount <= 0) return alert('Nominal harus valid');
     setPaymentLoading(true);
     try {
-      const res = await fetch(`http://localhost:8080/api/payments/submit`, {
+      const res = await fetch(`${CENTRAL_API_BASE}/payments/submit`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

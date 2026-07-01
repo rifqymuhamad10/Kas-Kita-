@@ -1,8 +1,9 @@
 import React, { useState, useRef } from 'react';
 import './Dashboard.css';
 import './Profile.css';
+import { API_V1_BASE } from '../config';
 
-const API_BASE = 'http://localhost:8080/api/v1';
+const API_BASE = API_V1_BASE;
 
 // Tipe gambar yang diizinkan untuk foto profil. Video (mp4, dll) selalu ditolak.
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];

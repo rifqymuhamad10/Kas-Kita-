@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { API_V1_BASE, API_BASE as CENTRAL_API_BASE } from './config';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import VerifyEmail from './pages/VerifyEmail';
@@ -36,7 +37,7 @@ function App() {
     setTokenLoading(true);
     setTokenError('');
     try {
-      const res = await fetch('http://localhost:8080/api/tokens/redeem', {
+      const res = await fetch(`${CENTRAL_API_BASE}/tokens/redeem`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -86,7 +87,7 @@ function App() {
           }
 
           // Ambil detail role dari backend me endpoint
-          const meRes = await fetch('http://localhost:8080/api/v1/auth/me', {
+          const meRes = await fetch(`${API_V1_BASE}/auth/me`, {
             headers: {
               'Authorization': `Bearer ${token}`
             }
@@ -186,7 +187,7 @@ function App() {
             return;
           }
           try {
-            const meRes = await fetch('http://localhost:8080/api/v1/auth/me', {
+            const meRes = await fetch(`${API_V1_BASE}/auth/me`, {
               headers: {
                 'Authorization': `Bearer ${userInfo.token}`
               }
@@ -234,7 +235,7 @@ function App() {
         onVerificationSuccess={async () => {
           try {
             const token = await auth.currentUser.getIdToken(true); // paksa refresh token agar status emailVerified diperbarui
-            const meRes = await fetch('http://localhost:8080/api/v1/auth/me', {
+            const meRes = await fetch(`${API_V1_BASE}/auth/me`, {
               headers: {
                 'Authorization': `Bearer ${token}`
               }

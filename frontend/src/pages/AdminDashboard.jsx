@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import './Dashboard.css';
+import { API_V1_BASE, API_BASE as CENTRAL_API_BASE } from '../config';
 
-const API_BASE = 'http://localhost:8080/api/v1';
+const API_BASE = API_V1_BASE;
 
 function AdminDashboard({ user, onLogout, onNavigate, isSidebarOpen, toggleSidebar }) {
   const displayName = user?.name || "Memuat...";
@@ -112,11 +113,11 @@ function AdminDashboard({ user, onLogout, onNavigate, isSidebarOpen, toggleSideb
     const fetchStatus = async () => {
       try {
         // Fetch all members
-        const membersRes = await fetch(`http://localhost:8080/api/users/members`, {
+        const membersRes = await fetch(`${CENTRAL_API_BASE}/users/members`, {
           headers: { 'Authorization': `Bearer ${user?.token}` }
         });
         // Fetch all bills
-        const billsRes = await fetch(`http://localhost:8080/api/bills`, {
+        const billsRes = await fetch(`${CENTRAL_API_BASE}/bills`, {
           headers: { 'Authorization': `Bearer ${user?.token}` }
         });
 

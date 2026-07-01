@@ -10,11 +10,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.beans.factory.annotation.Value;
+
 @RestController
 @RequestMapping("/api/v1/auth")
 public class AuthController {
 
     private final UserService userService;
+
+    @Value("${app.backend-url:http://localhost:8080}")
+    private String backendUrl;
 
     public AuthController(UserService userService) {
         this.userService = userService;
@@ -159,7 +164,7 @@ public class AuthController {
         java.nio.file.Path filePath = uploadPath.resolve(filename);
         java.nio.file.Files.write(filePath, imageBytes);
 
-        return "http://localhost:8080/uploads/" + filename;
+        return backendUrl + "/uploads/" + filename;
     }
 }
 

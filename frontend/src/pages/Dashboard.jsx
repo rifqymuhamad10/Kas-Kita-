@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import './Dashboard.css';
+import { API_V1_BASE } from '../config';
 
 export default function Dashboard({ user, onLogout }) {
   const [transactions, setTransactions] = useState([]);
@@ -17,7 +18,7 @@ export default function Dashboard({ user, onLogout }) {
       const token = user.token;
       
       // Ambil Balance
-      const balanceRes = await fetch('http://localhost:8080/api/v1/transactions/balance', {
+      const balanceRes = await fetch(`${API_V1_BASE}/transactions/balance`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -28,7 +29,7 @@ export default function Dashboard({ user, onLogout }) {
       }
 
       // Ambil Daftar Transaksi
-      const transRes = await fetch('http://localhost:8080/api/v1/transactions', {
+      const transRes = await fetch(`${API_V1_BASE}/transactions`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -57,7 +58,7 @@ export default function Dashboard({ user, onLogout }) {
 
     try {
       const token = user.token;
-      const response = await fetch('http://localhost:8080/api/v1/transactions', {
+      const response = await fetch(`${API_V1_BASE}/transactions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

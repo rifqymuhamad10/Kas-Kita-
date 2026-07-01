@@ -29,19 +29,33 @@ public class FirebaseConfig {
         }
 
         FirebaseOptions options;
-        InputStream serviceAccount = getClass().getClassLoader()
-                .getResourceAsStream("firebase-service-account.json");
-
-        if (serviceAccount != null) {
-            options = FirebaseOptions.builder()
-                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                    .build();
-            logger.info("Firebase initialized with credentials from classpath.");
+        
+        // 1. Coba dari environment variable (paling cocok untuk deployment Cloud)
+        String firebaseCredentialsJson = System.getenv("FIREBASE_CREDENTIALS_JSON");
+        if (firebaseCredentialsJson != null && !firebaseCredentialsJson.trim().isEmpty()) {
+            try (InputStream stream = new java.io.ByteArrayInputStream(
+                    firebaseCredentialsJson.getBytes(java.nio.charset.StandardCharsets.UTF_8))) {
+                options = FirebaseOptions.builder()
+                        .setCredentials(GoogleCredentials.fromStream(stream))
+                        .build();
+                logger.info("Firebase initialized with credentials from FIREBASE_CREDENTIALS_JSON environment variable.");
+            }
         } else {
-            options = FirebaseOptions.builder()
-                    .setCredentials(GoogleCredentials.getApplicationDefault())
-                    .build();
-            logger.info("Firebase initialized with Application Default Credentials.");
+            // 2. Coba dari file local classpath (development)
+            InputStream serviceAccount = getClass().getClassLoader()
+                    .getResourceAsStream("firebase-service-account.json");
+            if (serviceAccount != null) {
+                options = FirebaseOptions.builder()
+                        .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                        .build();
+                logger.info("Firebase initialized with credentials from classpath.");
+            } else {
+                // 3. Fallback ke Application Default Credentials
+                options = FirebaseOptions.builder()
+                        .setCredentials(GoogleCredentials.getApplicationDefault())
+                        .build();
+                logger.info("Firebase initialized with Application Default Credentials.");
+            }
         }
 
         return FirebaseApp.initializeApp(options);

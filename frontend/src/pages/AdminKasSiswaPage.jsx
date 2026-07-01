@@ -1,7 +1,8 @@
 import React from 'react';
 import './Dashboard.css';
+import { API_BASE as CENTRAL_API_BASE } from '../config';
 
-const API_BASE = 'http://localhost:8080/api';
+const API_BASE = CENTRAL_API_BASE;
 
 function AdminKasSiswaPage({ user, onLogout, onNavigate, isSidebarOpen, toggleSidebar }) {
   const displayName = user?.name || "Memuat...";
