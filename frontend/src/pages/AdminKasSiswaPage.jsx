@@ -13,6 +13,7 @@ function AdminKasSiswaPage({ user, onLogout, onNavigate, isSidebarOpen, toggleSi
   const [loading, setLoading] = React.useState(false);
   const [pendingPayments, setPendingPayments] = React.useState([]);
   const [members, setMembers] = React.useState([]);
+  const [bills, setBills] = React.useState([]); // semua bills untuk kalkulasi tagihan per member
 
   // State untuk sistem token
   const [generatedToken, setGeneratedToken] = React.useState(null);
@@ -24,15 +25,15 @@ function AdminKasSiswaPage({ user, onLogout, onNavigate, isSidebarOpen, toggleSi
   React.useEffect(() => {
     fetchDues();
     fetchPendingPayments();
-    fetchMembers();
+    fetchMembersAndBills();
 
-    // Auto-refresh member list setiap 15 detik agar admin tahu jika ada member baru yang redeem token
+    // Auto-refresh setiap 15 detik
     const interval = setInterval(() => {
-      fetchMembers();
+      fetchMembersAndBills();
       setLastRefresh(new Date());
     }, 15000);
 
-    return () => clearInterval(interval); // cleanup saat unmount
+    return () => clearInterval(interval);
   }, []);
 
   const fetchDues = async () => {
@@ -63,19 +64,36 @@ function AdminKasSiswaPage({ user, onLogout, onNavigate, isSidebarOpen, toggleSi
     }
   };
 
-  const fetchMembers = async () => {
+  const fetchMembersAndBills = async () => {
     try {
-      const res = await fetch(`${API_BASE}/users/members`, {
-        headers: { 'Authorization': `Bearer ${user?.token}` }
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setMembers(data);
+      const [membersRes, billsRes] = await Promise.all([
+        fetch(`${API_BASE}/users/members`, {
+          headers: { 'Authorization': `Bearer ${user?.token}` }
+        }),
+        fetch(`${API_BASE}/bills`, {
+          headers: { 'Authorization': `Bearer ${user?.token}` }
+        })
+      ]);
+      if (membersRes.ok) {
+        const data = await membersRes.json();
+        // Hanya tampilkan member yang sudah menggunakan token undangan (invited: true)
+        setMembers(data.filter(m => m.invited === true));
+      }
+      if (billsRes.ok) {
+        setBills(await billsRes.json());
       }
     } catch (err) {
-      console.error("Gagal mengambil data member:", err);
+      console.error("Gagal mengambil data member/bills:", err);
     }
   };
+
+  // Helper: hitung akumulasi tagihan UNPAID milik satu member
+  const getMemberArrears = (memberUid) => {
+    return bills
+      .filter(b => b.memberUid === memberUid && b.status === 'UNPAID')
+      .reduce((sum, b) => sum + (b.amountDue || 0), 0);
+  };
+
 
   const handleGenerateToken = async () => {
     setTokenLoading(true);
@@ -344,7 +362,7 @@ function AdminKasSiswaPage({ user, onLogout, onNavigate, isSidebarOpen, toggleSi
           {/* === DAFTAR MEMBER === */}
           <div style={{ marginTop: '2rem', padding: '1rem', border: '2px solid #000', backgroundColor: '#fff' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-              <h3 style={{ margin: 0 }}>Daftar Member</h3>
+              <h3 style={{ margin: 0 }}>Daftar Member ({members.length})</h3>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                 {lastRefresh && (
                   <span style={{ fontSize: '0.75rem', color: '#888', fontFamily: 'JetBrains Mono, monospace' }}>
@@ -352,7 +370,7 @@ function AdminKasSiswaPage({ user, onLogout, onNavigate, isSidebarOpen, toggleSi
                   </span>
                 )}
                 <button
-                  onClick={() => { fetchMembers(); setLastRefresh(new Date()); }}
+                  onClick={() => { fetchMembersAndBills(); setLastRefresh(new Date()); }}
                   style={{
                     background: '#1a1a1a',
                     color: 'white',
@@ -373,28 +391,38 @@ function AdminKasSiswaPage({ user, onLogout, onNavigate, isSidebarOpen, toggleSi
                 <tr style={{ borderBottom: '2px solid #000' }}>
                   <th style={{ padding: '0.5rem' }}>NAMA</th>
                   <th style={{ padding: '0.5rem' }}>EMAIL</th>
-                  <th style={{ padding: '0.5rem' }}>STATUS AKSES</th>
+                  <th style={{ padding: '0.5rem', textAlign: 'right' }}>TAGIHAN</th>
+                  <th style={{ padding: '0.5rem', textAlign: 'center' }}>STATUS</th>
                 </tr>
               </thead>
               <tbody>
                 {members.length === 0 ? (
                   <tr>
-                    <td colSpan="3" style={{ textAlign: 'center', padding: '1rem' }}>Belum ada data member.</td>
+                    <td colSpan="4" style={{ textAlign: 'center', padding: '1.5rem', color: '#888' }}>
+                      Belum ada member yang menggunakan token undangan.
+                    </td>
                   </tr>
                 ) : (
-                  members.map(member => (
-                    <tr key={member.uid} style={{ borderBottom: '1px solid #ccc' }}>
-                      <td style={{ padding: '0.5rem' }}>{member.name}</td>
-                      <td style={{ padding: '0.5rem' }}>{member.email}</td>
-                      <td style={{ padding: '0.5rem' }}>
-                        {member.invited ? (
-                          <span style={{ color: '#155724', fontWeight: 'bold', background: '#d4edda', padding: '0.2rem 0.6rem', border: '1px solid #c3e6cb' }}>✓ AKTIF</span>
-                        ) : (
-                          <span style={{ color: '#721c24', fontWeight: 'bold', background: '#f8d7da', padding: '0.2rem 0.6rem', border: '1px solid #f5c6cb' }}>BELUM AKTIF</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))
+                  members.map(member => {
+                    const arrears = getMemberArrears(member.uid);
+                    const isLunas = arrears === 0;
+                    return (
+                      <tr key={member.uid} style={{ borderBottom: '1px solid #eee' }}>
+                        <td style={{ padding: '0.6rem 0.5rem', fontWeight: 600 }}>{member.name}</td>
+                        <td style={{ padding: '0.6rem 0.5rem', color: '#555', fontSize: '0.9rem' }}>{member.email}</td>
+                        <td style={{ padding: '0.6rem 0.5rem', textAlign: 'right', fontFamily: 'JetBrains Mono, monospace', fontWeight: 700, color: isLunas ? '#155724' : '#721c24' }}>
+                          {isLunas ? '-' : `Rp ${arrears.toLocaleString('id-ID')}`}
+                        </td>
+                        <td style={{ padding: '0.6rem 0.5rem', textAlign: 'center' }}>
+                          {isLunas ? (
+                            <span style={{ color: '#155724', fontWeight: 'bold', background: '#d4edda', padding: '0.25rem 0.75rem', border: '1px solid #c3e6cb', fontSize: '0.85rem' }}>✓ LUNAS</span>
+                          ) : (
+                            <span style={{ color: '#721c24', fontWeight: 'bold', background: '#f8d7da', padding: '0.25rem 0.75rem', border: '1px solid #f5c6cb', fontSize: '0.85rem' }}>✗ BELUM LUNAS</span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })
                 )}
               </tbody>
             </table>
