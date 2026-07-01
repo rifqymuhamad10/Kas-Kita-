@@ -782,7 +782,8 @@
     padding: 1rem;
   }
   
-  .summary-cards-row {
+  .summary-cards-row,
+  .summary-cards-row.member-grid {
     grid-template-columns: 1fr; /* Stack on mobile */
   }
   .grid-row-2 { flex-direction: column; }

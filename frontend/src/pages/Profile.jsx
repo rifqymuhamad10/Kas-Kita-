@@ -9,13 +9,11 @@ const API_BASE = API_V1_BASE;
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 const MAX_FILE_SIZE_BYTES = 2 * 1024 * 1024; // 2MB
 
-function Profile({ user, onLogout, onNavigate, onUserUpdate }) {
+function Profile({ user, onLogout, onNavigate, onUserUpdate, isSidebarOpen, toggleSidebar }) {
   const displayName = user?.name || 'Pengguna';
   const isAdmin = user?.role === 'ROLE_ADMIN' || user?.role === 'ADMIN';
   const displayRole = isAdmin ? 'BENDAHARA' : 'SISWA';
 
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const [name, setName] = useState(user?.name || '');
