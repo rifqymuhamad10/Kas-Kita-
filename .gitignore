@@ -1,6 +1,9 @@
-# Dependency directories
+# Dependency and Build directories
 node_modules/
 target/
+dist/
+frontend/dist/
+backend/src/main/resources/application-local.properties
 
 # IDEs and editors
 .idea/
