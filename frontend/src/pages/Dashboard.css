@@ -781,15 +781,27 @@
   .main-content {
     padding: 1rem;
   }
-  
-  .summary-cards-row,
-  .summary-cards-row.member-grid {
-    grid-template-columns: 1fr; /* Stack on mobile */
-  }
-  .grid-row-2 { flex-direction: column; }
-  .chart-placeholder-new { flex-direction: column; }
 }
 
+/* Tablet Layout (768px - 1024px) */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .summary-cards-row {
+    grid-template-columns: 1fr 1fr;
+  }
+  .summary-cards-row.member-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  /* Card Balance spans 2 columns for 3-card layout */
+  .summary-cards-row .balance {
+    grid-column: span 2;
+  }
+  /* Reset Card Balance span for 4-card layout (member-grid) */
+  .summary-cards-row.member-grid .balance {
+    grid-column: span 1;
+  }
+}
+
+/* Mobile Layout (< 768px) */
 @media (max-width: 768px) {
   .top-header {
     padding: 1rem;
@@ -806,5 +818,16 @@
   .profile-role {
     font-size: 0.65rem;
   }
+  
+  .summary-cards-row,
+  .summary-cards-row.member-grid {
+    grid-template-columns: 1fr; /* Stack to 1 column on mobile */
+  }
+  .summary-cards-row .balance {
+    grid-column: span 1; /* Reset span on mobile */
+  }
+  
+  .grid-row-2 { flex-direction: column; }
+  .chart-placeholder-new { flex-direction: column; }
 }
 
