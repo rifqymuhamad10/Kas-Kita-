@@ -23,6 +23,46 @@ function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
+  // State untuk form redeem token
+  const [tokenInput, setTokenInput] = useState('');
+  const [tokenError, setTokenError] = useState('');
+  const [tokenLoading, setTokenLoading] = useState(false);
+
+  const handleRedeemToken = async () => {
+    if (tokenInput.trim().length !== 6) {
+      setTokenError('Token harus 6 karakter.');
+      return;
+    }
+    setTokenLoading(true);
+    setTokenError('');
+    try {
+      const res = await fetch('http://localhost:8080/api/tokens/redeem', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user?.token}`
+        },
+        body: JSON.stringify({
+          token: tokenInput.trim().toUpperCase(),
+          memberUid: user?.uid
+        })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        // Refresh user state agar invited = true
+        setUser(prev => ({ ...prev, invited: true }));
+        setTokenInput('');
+      } else {
+        setTokenError(data.message || 'Token tidak valid atau sudah pernah digunakan.');
+      }
+    } catch (err) {
+      console.error(err);
+      setTokenError('Gagal terhubung ke server. Pastikan server aktif.');
+    } finally {
+      setTokenLoading(false);
+    }
+  };
+
   // Monitor status auth Firebase secara real-time
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -306,11 +346,98 @@ function App() {
     // LOCK SCREEN: Jika user adalah ROLE_MEMBER dan belum diundang (invited == false)
     if (user && user.role === 'ROLE_MEMBER' && !user.invited && page !== 'profile') {
       return (
-        <div className="dashboard-layout manga-theme" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#f5f5f5', width: '100%' }}>
-          <div className="manga-panel" style={{ padding: '3rem', textAlign: 'center', maxWidth: '500px' }}>
-            <h2 style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '2rem', marginBottom: '1rem', color: '#721c24' }}>AKSES TERKUNCI</h2>
-            <p style={{ fontSize: '1.2rem', marginBottom: '2rem' }}>Anda belum diundang ke dalam Kas Siswa oleh Bendahara. Silakan hubungi Bendahara kelas Anda untuk mendapatkan akses.</p>
-            <button className="manga-btn primary" onClick={handleLogout} style={{ padding: '0.8rem 2rem', fontWeight: 'bold' }}>KEMBALI / LOGOUT</button>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '100vh',
+          backgroundColor: '#f0f0f0',
+          width: '100%',
+          padding: '2rem'
+        }}>
+          <div className="manga-panel" style={{
+            padding: '2.5rem',
+            textAlign: 'center',
+            maxWidth: '480px',
+            width: '100%',
+            border: '3px solid #1a1a1a',
+            boxShadow: '8px 8px 0 #1a1a1a'
+          }}>
+            {/* Icon */}
+            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔒</div>
+
+            <h2 style={{
+              fontFamily: 'JetBrains Mono, monospace',
+              fontSize: '1.75rem',
+              marginBottom: '0.75rem',
+              color: '#1a1a1a',
+              textTransform: 'uppercase'
+            }}>AKSES TERKUNCI</h2>
+
+            <p style={{ fontSize: '1rem', marginBottom: '2rem', color: '#555', lineHeight: 1.6 }}>
+              Masukkan <strong>token undangan 6 digit</strong> yang diberikan oleh Bendahara kelasmu untuk mengaktifkan akses Kas Siswa.
+            </p>
+
+            {/* Form Input Token */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.5rem' }}>
+              <input
+                type="text"
+                maxLength={6}
+                value={tokenInput}
+                onChange={e => {
+                  setTokenInput(e.target.value.toUpperCase());
+                  setTokenError('');
+                }}
+                placeholder="Contoh: AB3X9Z"
+                style={{
+                  padding: '1rem',
+                  fontSize: '1.75rem',
+                  fontFamily: 'JetBrains Mono, monospace',
+                  fontWeight: '900',
+                  letterSpacing: '0.5rem',
+                  textAlign: 'center',
+                  textTransform: 'uppercase',
+                  border: tokenError ? '3px solid #dc3545' : '3px solid #1a1a1a',
+                  outline: 'none'
+                }}
+              />
+              {tokenError && (
+                <p style={{ color: '#dc3545', fontWeight: 600, margin: 0, fontSize: '0.9rem' }}>
+                  ⚠ {tokenError}
+                </p>
+              )}
+              <button
+                className="manga-btn primary"
+                onClick={handleRedeemToken}
+                disabled={tokenLoading || tokenInput.length < 6}
+                style={{
+                  padding: '0.9rem',
+                  fontWeight: 'bold',
+                  fontSize: '1rem',
+                  fontFamily: 'JetBrains Mono, monospace',
+                  opacity: tokenInput.length < 6 ? 0.6 : 1
+                }}
+              >
+                {tokenLoading ? 'MEMVERIFIKASI...' : '✓ AKTIFKAN AKSES'}
+              </button>
+            </div>
+
+            <div style={{ borderTop: '2px solid #ddd', paddingTop: '1rem' }}>
+              <button
+                onClick={handleLogout}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: '#888',
+                  fontFamily: 'JetBrains Mono, monospace',
+                  fontSize: '0.85rem',
+                  textDecoration: 'underline'
+                }}
+              >
+                Logout
+              </button>
+            </div>
           </div>
         </div>
       );

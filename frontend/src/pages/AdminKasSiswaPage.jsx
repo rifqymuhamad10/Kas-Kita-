@@ -14,6 +14,11 @@ function AdminKasSiswaPage({ user, onLogout, onNavigate, isSidebarOpen, toggleSi
   const [pendingPayments, setPendingPayments] = React.useState([]);
   const [members, setMembers] = React.useState([]);
 
+  // State untuk sistem token
+  const [generatedToken, setGeneratedToken] = React.useState(null);
+  const [tokenLoading, setTokenLoading] = React.useState(false);
+  const [tokenCopied, setTokenCopied] = React.useState(false);
+
   React.useEffect(() => {
     fetchDues();
     fetchPendingPayments();
@@ -62,22 +67,33 @@ function AdminKasSiswaPage({ user, onLogout, onNavigate, isSidebarOpen, toggleSi
     }
   };
 
-  const handleInvite = async (uid) => {
+  const handleGenerateToken = async () => {
+    setTokenLoading(true);
+    setTokenCopied(false);
     try {
-      const res = await fetch(`${API_BASE}/users/${uid}/invite`, {
+      const res = await fetch(`${API_BASE}/tokens/generate`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${user?.token}` }
       });
       if (res.ok) {
-        alert('Member berhasil diundang!');
-        fetchMembers();
+        const data = await res.json();
+        setGeneratedToken(data.token);
       } else {
-        alert('Gagal mengundang member.');
+        alert('Gagal membuat token undangan.');
       }
     } catch (err) {
       console.error(err);
-      alert('Terjadi kesalahan.');
+      alert('Terjadi kesalahan saat membuat token.');
+    } finally {
+      setTokenLoading(false);
     }
+  };
+
+  const handleCopyToken = () => {
+    if (!generatedToken) return;
+    navigator.clipboard.writeText(generatedToken);
+    setTokenCopied(true);
+    setTimeout(() => setTokenCopied(false), 2000);
   };
 
   const handleActionPayment = async (paymentId, action) => {
@@ -216,7 +232,7 @@ function AdminKasSiswaPage({ user, onLogout, onNavigate, isSidebarOpen, toggleSi
                       <td style={{ padding: '0.5rem' }}>Rp {due.amount?.toLocaleString('id-ID')}</td>
                       <td style={{ padding: '0.5rem' }}>{due.createdAt ? new Date(due.createdAt).toLocaleDateString('id-ID') : '-'}</td>
                       <td style={{ padding: '0.5rem' }}>
-                        <button style={{ background: '#f8d7da', color: '#721c24', border: '1px solid #f5c6cb', padding: '0.2rem 0.5rem', cursor: 'pointer' }}>HAPUS</button>
+                        <button onClick={() => handleDeleteDue(due.id)} style={{ background: '#f8d7da', color: '#721c24', border: '1px solid #f5c6cb', padding: '0.2rem 0.5rem', cursor: 'pointer' }}>HAPUS</button>
                       </td>
                     </tr>
                   ))
@@ -257,21 +273,79 @@ function AdminKasSiswaPage({ user, onLogout, onNavigate, isSidebarOpen, toggleSi
               </tbody>
             </table>
           </div>
-          <div style={{ marginTop: '2rem', padding: '1rem', border: '2px solid #000', backgroundColor: '#f9f9f9' }}>
-            <h3 style={{ marginBottom: '1rem' }}>Manajemen Member (Undangan)</h3>
+          {/* === SISTEM TOKEN UNDANGAN === */}
+          <div style={{ marginTop: '2rem', padding: '1.5rem', border: '3px solid #000', backgroundColor: '#f9f9f9' }}>
+            <h3 style={{ marginBottom: '0.5rem', fontFamily: 'JetBrains Mono, monospace' }}>TOKEN UNDANGAN</h3>
+            <p style={{ marginBottom: '1rem', fontSize: '0.9rem', color: '#555' }}>
+              Generate token 6 karakter. Berikan token ini ke member agar mereka bisa mengaktifkan akses kas siswa di dashboard mereka.
+            </p>
+
+            <button
+              className="manga-btn primary"
+              onClick={handleGenerateToken}
+              disabled={tokenLoading}
+              style={{ padding: '0.75rem 1.5rem', fontWeight: 'bold', marginBottom: '1.5rem' }}
+            >
+              {tokenLoading ? 'MEMBUAT TOKEN...' : '🔑 GENERATE TOKEN BARU'}
+            </button>
+
+            {generatedToken && (
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '1rem',
+                padding: '1.5rem',
+                border: '3px dashed #1a1a1a',
+                backgroundColor: '#fff',
+                borderRadius: '4px'
+              }}>
+                <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: 600, color: '#555', textTransform: 'uppercase', letterSpacing: '1px' }}>Token Undangan Baru:</p>
+                <span style={{
+                  fontFamily: 'JetBrains Mono, monospace',
+                  fontSize: '3rem',
+                  fontWeight: '900',
+                  letterSpacing: '0.5rem',
+                  color: '#1a1a1a',
+                  textTransform: 'uppercase'
+                }}>
+                  {generatedToken}
+                </span>
+                <button
+                  onClick={handleCopyToken}
+                  style={{
+                    background: tokenCopied ? '#155724' : '#1a1a1a',
+                    color: 'white',
+                    border: 'none',
+                    padding: '0.5rem 1.5rem',
+                    cursor: 'pointer',
+                    fontWeight: 'bold',
+                    fontFamily: 'JetBrains Mono, monospace',
+                    transition: 'background 0.2s'
+                  }}
+                >
+                  {tokenCopied ? '✓ TERSALIN!' : 'SALIN TOKEN'}
+                </button>
+                <p style={{ margin: 0, fontSize: '0.8rem', color: '#888' }}>Token hanya bisa digunakan <strong>sekali</strong>.</p>
+              </div>
+            )}
+          </div>
+
+          {/* === DAFTAR MEMBER === */}
+          <div style={{ marginTop: '2rem', padding: '1rem', border: '2px solid #000', backgroundColor: '#fff' }}>
+            <h3 style={{ marginBottom: '1rem' }}>Daftar Member</h3>
             <table className="transaction-table" style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ borderBottom: '2px solid #000' }}>
                   <th style={{ padding: '0.5rem' }}>NAMA</th>
                   <th style={{ padding: '0.5rem' }}>EMAIL</th>
-                  <th style={{ padding: '0.5rem' }}>STATUS</th>
-                  <th style={{ padding: '0.5rem' }}>AKSI</th>
+                  <th style={{ padding: '0.5rem' }}>STATUS AKSES</th>
                 </tr>
               </thead>
               <tbody>
                 {members.length === 0 ? (
                   <tr>
-                    <td colSpan="4" style={{ textAlign: 'center', padding: '1rem' }}>Belum ada data member.</td>
+                    <td colSpan="3" style={{ textAlign: 'center', padding: '1rem' }}>Belum ada data member.</td>
                   </tr>
                 ) : (
                   members.map(member => (
@@ -280,19 +354,9 @@ function AdminKasSiswaPage({ user, onLogout, onNavigate, isSidebarOpen, toggleSi
                       <td style={{ padding: '0.5rem' }}>{member.email}</td>
                       <td style={{ padding: '0.5rem' }}>
                         {member.invited ? (
-                          <span style={{ color: '#155724', fontWeight: 'bold' }}>Terundang</span>
+                          <span style={{ color: '#155724', fontWeight: 'bold', background: '#d4edda', padding: '0.2rem 0.6rem', border: '1px solid #c3e6cb' }}>✓ AKTIF</span>
                         ) : (
-                          <span style={{ color: '#721c24', fontWeight: 'bold' }}>Belum Terundang</span>
-                        )}
-                      </td>
-                      <td style={{ padding: '0.5rem' }}>
-                        {!member.invited && (
-                          <button 
-                            onClick={() => handleInvite(member.uid)} 
-                            style={{ background: '#007bff', color: 'white', border: 'none', padding: '0.3rem 0.6rem', cursor: 'pointer', fontWeight: 'bold' }}
-                          >
-                            UNDANG
-                          </button>
+                          <span style={{ color: '#721c24', fontWeight: 'bold', background: '#f8d7da', padding: '0.2rem 0.6rem', border: '1px solid #f5c6cb' }}>BELUM AKTIF</span>
                         )}
                       </td>
                     </tr>

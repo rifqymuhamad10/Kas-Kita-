@@ -37,6 +37,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/v1/auth/register", "/api/v1/auth/me").permitAll() // Mengizinkan registrasi dan profil tanpa blokir 403
                 .requestMatchers("/api/v1/**").authenticated()
+                .requestMatchers("/api/**").authenticated() // Endpoint kas siswa tanpa /v1/
                 .anyRequest().permitAll() // Allow other endpoints like actuator, swagger if needed
             )
             .addFilterBefore(firebaseJwtFilter, UsernamePasswordAuthenticationFilter.class);
