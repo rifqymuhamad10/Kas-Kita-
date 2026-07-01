@@ -311,22 +311,29 @@ function MemberDashboard({ user, page, onLogout, onNavigate, isSidebarOpen, togg
         <div className="content-area">
           
           {/* BARIS 1: ASYMMETRIC GRID */}
-          <div className="summary-cards-row">
+          <div className="summary-cards-row member-grid">
             <div className="summary-card balance manga-panel speed-lines-bg">
               <div className="card-info relative-z">
-                <p className="card-label bg-white-highlight">TOTAL SALDO</p>
+                <p className="card-label bg-white-highlight">TOTAL SALDO KELAS</p>
                 <h3 className="card-amount impact-text bg-white-highlight">Rp {balance.toLocaleString('id-ID')}</h3>
               </div>
             </div>
 
             <div className="summary-card income manga-panel">
               <div className="card-info">
-                <p className="card-label">PEMASUKAN</p>
+                <p className="card-label">PEMASUKAN KELAS</p>
                 <h3 className="card-amount">Rp {income.toLocaleString('id-ID')}</h3>
               </div>
             </div>
 
             <div className="summary-card expense manga-panel">
+              <div className="card-info">
+                <p className="card-label">PENGELUARAN KELAS</p>
+                <h3 className="card-amount text-semantic-red">Rp {expense.toLocaleString('id-ID')}</h3>
+              </div>
+            </div>
+
+            <div className="summary-card arrears manga-panel" style={{ backgroundColor: '#fff' }}>
               <div className="card-info">
                 <p className="card-label">TOTAL TAGIHAN SAYA</p>
                 <h3 className="card-amount text-semantic-red">Rp {myArrears.toLocaleString('id-ID')}</h3>

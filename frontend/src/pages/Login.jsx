@@ -3,9 +3,10 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../services/firebase';
 import './Login.css';
 
-export default function Login({ onNavigateToRegister, onLoginSuccess }) {
+export default function Login({ onNavigateToRegister, onLoginSuccess, onNavigateToForgotPassword }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -81,17 +82,37 @@ export default function Login({ onNavigateToRegister, onLoginSuccess }) {
             {/* Password */}
             <div className="form-group">
               <label htmlFor="password" className="form-label">PASSWORD</label>
-              <input
-                id="password"
-                type="password"
-                className="form-input"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+              <div className="password-input-wrapper">
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  className="form-input"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <button
+                  type="button"
+                  className="password-toggle-btn"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? 'Sembunyi' : 'Lihat'}
+                </button>
+              </div>
               <div className="forgot-password-row">
-                <a href="#" className="forgot-password-link">Lupa kata sandi?</a>
+                <a
+                  href="#"
+                  className="forgot-password-link"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (onNavigateToForgotPassword) {
+                      onNavigateToForgotPassword();
+                    }
+                  }}
+                >
+                  Lupa kata sandi?
+                </a>
               </div>
             </div>
 

@@ -330,3 +330,74 @@
   color: var(--ink-black);
   margin: 0;
 }
+
+/* Password Input Toggle */
+.password-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.password-input-wrapper .form-input {
+  padding-right: 4rem;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: 1.5px solid var(--ink-black);
+  border-radius: 0.25rem;
+  cursor: pointer;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--ink-black);
+  padding: 0.2rem 0.4rem;
+  text-transform: uppercase;
+  user-select: none;
+  background-color: var(--manga-white);
+  transition: all 0.1s ease;
+}
+
+.password-toggle-btn:hover {
+  background-color: #eeeeee;
+}
+
+.password-toggle-btn:active {
+  transform: translateY(-50%) translate(1px, 1px);
+}
+/* Password Requirements Checklist */
+.password-requirements {
+  list-style: none;
+  padding: 0.75rem 1rem;
+  margin: 0.25rem 0 0.5rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  background-color: #fcfcfc;
+  border: 1.5px dashed var(--ink-black);
+  border-radius: 0.5rem;
+}
+
+.requirement-item {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: #777777;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.requirement-item.valid {
+  color: var(--ink-black);
+  font-weight: 700;
+  text-decoration: line-through;
+  text-decoration-thickness: 1.5px;
+}
+
+.requirement-icon {
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+}

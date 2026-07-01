@@ -9,14 +9,27 @@ export default function Register({ onNavigateToLogin, onRegisterSuccess }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const role = 'ROLE_MEMBER';
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const hasMinLength = password.length >= 8;
+  const hasMixedCase = /[a-z]/.test(password) && /[A-Z]/.test(password);
+  const hasNumber = /[0-9]/.test(password);
+  const hasSpecialChar = /[^A-Za-z0-9]/.test(password);
+  const isPasswordSecure = hasMinLength && hasMixedCase && hasNumber && hasSpecialChar;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
+
+    if (!isPasswordSecure) {
+      setError('Kata sandi tidak memenuhi kriteria keamanan minimum.');
+      setLoading(false);
+      return;
+    }
 
     if (password !== confirmPassword) {
       setError('Konfirmasi password tidak cocok.');
@@ -136,29 +149,69 @@ export default function Register({ onNavigateToLogin, onRegisterSuccess }) {
             {/* Password */}
             <div className="form-group">
               <label htmlFor="password" className="form-label">PASSWORD</label>
-              <input
-                id="password"
-                type="password"
-                className="form-input"
-                placeholder="Min. 6 karakter"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+              <div className="password-input-wrapper">
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  className="form-input"
+                  placeholder="Min. 8 karakter"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <button
+                  type="button"
+                  className="password-toggle-btn"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? 'Sembunyi' : 'Lihat'}
+                </button>
+              </div>
+
+              {/* Password Policy Checklist */}
+              {password.length > 0 && (
+                <ul className="password-requirements">
+                  <li className={`requirement-item ${hasMinLength ? 'valid' : ''}`}>
+                    <span className="requirement-icon">{hasMinLength ? '[✓]' : '[ ]'}</span>
+                    <span>Minimal 8 karakter</span>
+                  </li>
+                  <li className={`requirement-item ${hasMixedCase ? 'valid' : ''}`}>
+                    <span className="requirement-icon">{hasMixedCase ? '[✓]' : '[ ]'}</span>
+                    <span>Kombinasi huruf besar & kecil</span>
+                  </li>
+                  <li className={`requirement-item ${hasNumber ? 'valid' : ''}`}>
+                    <span className="requirement-icon">{hasNumber ? '[✓]' : '[ ]'}</span>
+                    <span>Mengandung angka (0-9)</span>
+                  </li>
+                  <li className={`requirement-item ${hasSpecialChar ? 'valid' : ''}`}>
+                    <span className="requirement-icon">{hasSpecialChar ? '[✓]' : '[ ]'}</span>
+                    <span>Karakter khusus (simbol/tanda baca)</span>
+                  </li>
+                </ul>
+              )}
             </div>
 
             {/* Konfirmasi Password */}
             <div className="form-group">
               <label htmlFor="confirmPassword" className="form-label">KONFIRMASI PASSWORD</label>
-              <input
-                id="confirmPassword"
-                type="password"
-                className="form-input"
-                placeholder="Ulangi password Anda"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-              />
+              <div className="password-input-wrapper">
+                <input
+                  id="confirmPassword"
+                  type={showPassword ? 'text' : 'password'}
+                  className="form-input"
+                  placeholder="Ulangi password Anda"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                />
+                <button
+                  type="button"
+                  className="password-toggle-btn"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? 'Sembunyi' : 'Lihat'}
+                </button>
+              </div>
             </div>
 
             {/* Submit */}

@@ -3,6 +3,8 @@ import { API_V1_BASE, API_BASE as CENTRAL_API_BASE } from './config';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import VerifyEmail from './pages/VerifyEmail';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import AdminDashboard from './pages/AdminDashboard';
 import MemberDashboard from './pages/MemberDashboard';
 import AdminTargetPage from './pages/AdminTargetPage';
@@ -18,6 +20,7 @@ import './pages/Dashboard.css';
 function App() {
   const [page, setPage] = useState('login'); // 'login' | 'register' | 'dashboard' | 'target'
   const [user, setUser] = useState(null);
+  const [oobCode, setOobCode] = useState(null);
   const [loading, setLoading] = useState(true);
 
   // Global Sidebar State to keep it persistent across page changes
@@ -66,6 +69,17 @@ function App() {
 
   // Monitor status auth Firebase secara real-time
   useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const mode = urlParams.get('mode');
+    const code = urlParams.get('oobCode');
+
+    if (mode === 'resetPassword' && code) {
+      setOobCode(code);
+      setPage('reset-password');
+      setLoading(false);
+      return () => {};
+    }
+
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
         try {
@@ -175,6 +189,7 @@ function App() {
   if (page === 'login') {
     return (
       <Login
+        onNavigateToForgotPassword={() => setPage('forgot-password')}
         onNavigateToRegister={() => setPage('register')}
         onLoginSuccess={async (userInfo) => {
           if (auth.currentUser && !auth.currentUser.emailVerified) {
@@ -212,6 +227,23 @@ function App() {
             alert("Gagal masuk: Gagal memuat profil pengguna dari server. Pastikan server aktif.");
           }
         }}
+      />
+    );
+  }
+
+  if (page === 'forgot-password') {
+    return (
+      <ForgotPassword
+        onNavigateToLogin={() => setPage('login')}
+      />
+    );
+  }
+
+  if (page === 'reset-password') {
+    return (
+      <ResetPassword
+        oobCode={oobCode}
+        onNavigateToLogin={() => setPage('login')}
       />
     );
   }
