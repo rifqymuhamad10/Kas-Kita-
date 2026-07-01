@@ -21,6 +21,7 @@ function AdminKasSiswaPage({ user, onLogout, onNavigate, isSidebarOpen, toggleSi
   const [tokenCopied, setTokenCopied] = React.useState(false);
 
   const [lastRefresh, setLastRefresh] = React.useState(null);
+  const [reminderLoading, setReminderLoading] = React.useState({});
 
   React.useEffect(() => {
     fetchDues();
@@ -196,6 +197,27 @@ function AdminKasSiswaPage({ user, onLogout, onNavigate, isSidebarOpen, toggleSi
     }
   };
 
+  const handleSendReminder = async (memberUid) => {
+    setReminderLoading(prev => ({ ...prev, [memberUid]: true }));
+    try {
+      const res = await fetch(`${API_BASE}/users/${memberUid}/send-reminder`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${user?.token}` }
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        alert('Pengingat Telegram berhasil dikirim!');
+      } else {
+        alert(data.message || 'Gagal mengirim pengingat Telegram.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Terjadi kesalahan koneksi.');
+    } finally {
+      setReminderLoading(prev => ({ ...prev, [memberUid]: false }));
+    }
+  };
+
   return (
     <main className="main-content">
 
@@ -314,7 +336,12 @@ function AdminKasSiswaPage({ user, onLogout, onNavigate, isSidebarOpen, toggleSi
               disabled={tokenLoading}
               style={{ padding: '0.75rem 1.5rem', fontWeight: 'bold', marginBottom: '1.5rem' }}
             >
-              {tokenLoading ? 'MEMBUAT TOKEN...' : '🔑 GENERATE TOKEN BARU'}
+              {tokenLoading ? 'MEMBUAT TOKEN...' : (
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.778-7.778zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg>
+                  GENERATE TOKEN BARU
+                </span>
+              )}
             </button>
 
             {generatedToken && (
@@ -352,7 +379,12 @@ function AdminKasSiswaPage({ user, onLogout, onNavigate, isSidebarOpen, toggleSi
                     transition: 'background 0.2s'
                   }}
                 >
-                  {tokenCopied ? '✓ TERSALIN!' : 'SALIN TOKEN'}
+                  {tokenCopied ? (
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', justifyContent: 'center' }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      TERSALIN!
+                    </span>
+                  ) : 'SALIN TOKEN'}
                 </button>
                 <p style={{ margin: 0, fontSize: '0.8rem', color: '#888' }}>Token hanya bisa digunakan <strong>sekali</strong>.</p>
               </div>
@@ -382,7 +414,10 @@ function AdminKasSiswaPage({ user, onLogout, onNavigate, isSidebarOpen, toggleSi
                     fontWeight: 'bold'
                   }}
                 >
-                  ↻ REFRESH
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M23 4v6h-6"></path><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                    REFRESH
+                  </span>
                 </button>
               </div>
             </div>
@@ -393,12 +428,14 @@ function AdminKasSiswaPage({ user, onLogout, onNavigate, isSidebarOpen, toggleSi
                   <th style={{ padding: '0.5rem' }}>EMAIL</th>
                   <th style={{ padding: '0.5rem', textAlign: 'right' }}>TAGIHAN</th>
                   <th style={{ padding: '0.5rem', textAlign: 'center' }}>STATUS</th>
+                  <th style={{ padding: '0.5rem', textAlign: 'center' }}>TELEGRAM</th>
+                  <th style={{ padding: '0.5rem', textAlign: 'center' }}>PENGINGAT</th>
                 </tr>
               </thead>
               <tbody>
                 {members.length === 0 ? (
                   <tr>
-                    <td colSpan="4" style={{ textAlign: 'center', padding: '1.5rem', color: '#888' }}>
+                    <td colSpan="6" style={{ textAlign: 'center', padding: '1.5rem', color: '#888' }}>
                       Belum ada member yang menggunakan token undangan.
                     </td>
                   </tr>
@@ -415,10 +452,53 @@ function AdminKasSiswaPage({ user, onLogout, onNavigate, isSidebarOpen, toggleSi
                         </td>
                         <td style={{ padding: '0.6rem 0.5rem', textAlign: 'center' }}>
                           {isLunas ? (
-                            <span style={{ color: '#155724', fontWeight: 'bold', background: '#d4edda', padding: '0.25rem 0.75rem', border: '1px solid #c3e6cb', fontSize: '0.85rem' }}>✓ LUNAS</span>
+                            <span style={{ color: '#155724', fontWeight: 'bold', background: '#d4edda', padding: '0.25rem 0.75rem', border: '1px solid #c3e6cb', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                              LUNAS
+                            </span>
                           ) : (
-                            <span style={{ color: '#721c24', fontWeight: 'bold', background: '#f8d7da', padding: '0.25rem 0.75rem', border: '1px solid #f5c6cb', fontSize: '0.85rem' }}>✗ BELUM LUNAS</span>
+                            <span style={{ color: '#721c24', fontWeight: 'bold', background: '#f8d7da', padding: '0.25rem 0.75rem', border: '1px solid #f5c6cb', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                              BELUM LUNAS
+                            </span>
                           )}
+                        </td>
+                        <td style={{ padding: '0.6rem 0.5rem', textAlign: 'center' }}>
+                          {member.telegramLinked ? (
+                            <span style={{ color: '#155724', fontWeight: 'bold', background: '#d4edda', padding: '0.25rem 0.75rem', border: '1px solid #c3e6cb', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                              Terhubung
+                            </span>
+                          ) : (
+                            <span style={{ color: '#721c24', fontWeight: 'bold', background: '#f8d7da', padding: '0.25rem 0.75rem', border: '1px solid #f5c6cb', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                              Belum
+                            </span>
+                          )}
+                        </td>
+                        <td style={{ padding: '0.6rem 0.5rem', textAlign: 'center' }}>
+                          <button
+                            onClick={() => handleSendReminder(member.uid)}
+                            disabled={isLunas || !member.telegramLinked || reminderLoading[member.uid]}
+                            style={{
+                              background: (isLunas || !member.telegramLinked) ? '#e0e0e0' : '#1a1a1a',
+                              color: (isLunas || !member.telegramLinked) ? '#888' : 'white',
+                              border: 'none',
+                              padding: '0.3rem 0.8rem',
+                              cursor: (isLunas || !member.telegramLinked) ? 'not-allowed' : 'pointer',
+                              fontWeight: 'bold',
+                              fontSize: '0.8rem',
+                              fontFamily: 'JetBrains Mono, monospace',
+                              transition: 'all 0.2s'
+                            }}
+                          >
+                            {reminderLoading[member.uid] ? 'MENGIRIM...' : (
+                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', justifyContent: 'center' }}>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
+                                PENGINGAT
+                              </span>
+                            )}
+                          </button>
                         </td>
                       </tr>
                     );

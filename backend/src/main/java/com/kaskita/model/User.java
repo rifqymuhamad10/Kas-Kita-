@@ -17,5 +17,7 @@ public class User {
     private boolean active; // Renamed from 'isActive' to avoid Lombok/Firestore getter mismatch
     private boolean invited; // Menandakan apakah member sudah diundang oleh admin
     private String fcmToken;
+    private String telegramChatId;
+    private boolean telegramLinked;
 }
 

@@ -23,6 +23,11 @@ function MemberDashboard({ user, page, onLogout, onNavigate, isSidebarOpen, togg
   const [paymentAmount, setPaymentAmount] = useState('');
   const [paymentLoading, setPaymentLoading] = useState(false);
 
+  // --- TELEGRAM NOTIFICATION STATE ---
+  const [telegramLinked, setTelegramLinked] = useState(user?.telegramLinked || false);
+  const [telegramLoadingToken, setTelegramLoadingToken] = useState(false);
+  const [telegramLinkUrl, setTelegramLinkUrl] = useState('');
+
   // Pie chart: kalkulasi pengeluaran per kategori dari data transaksi
   const CATEGORY_COLORS = [
     { fill: '#1A1A1A', stroke: '#1A1A1A', label: 'IURAN KAS' },
@@ -124,6 +129,15 @@ function MemberDashboard({ user, page, onLogout, onNavigate, isSidebarOpen, togg
           });
           setMyArrears(arrears);
         }
+
+        // Fetch user data terbaru dari /me untuk update status Telegram
+        const userRes = await fetch(`http://localhost:8080/api/v1/auth/me`, {
+          headers: { 'Authorization': `Bearer ${user?.token}` }
+        });
+        if (userRes.ok) {
+          const freshUser = await userRes.json();
+          setTelegramLinked(freshUser.telegramLinked || false);
+        }
       } catch (err) {
         console.error("Gagal mengambil data dashboard:", err);
       } finally {
@@ -135,6 +149,77 @@ function MemberDashboard({ user, page, onLogout, onNavigate, isSidebarOpen, togg
       fetchData();
     }
   }, [user]);
+
+  // Polling otomatis untuk mengecek status Telegram terhubung saat token link aktif
+  useEffect(() => {
+    let interval;
+    if (telegramLinkUrl && !telegramLinked) {
+      interval = setInterval(async () => {
+        try {
+          const userRes = await fetch(`http://localhost:8080/api/v1/auth/me`, {
+            headers: { 'Authorization': `Bearer ${user?.token}` }
+          });
+          if (userRes.ok) {
+            const freshUser = await userRes.json();
+            if (freshUser.telegramLinked) {
+              setTelegramLinked(true);
+              setTelegramLinkUrl('');
+              clearInterval(interval);
+            }
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      }, 5000);
+    }
+    return () => clearInterval(interval);
+  }, [telegramLinkUrl, telegramLinked, user]);
+
+  const handleConnectTelegram = async () => {
+    setTelegramLoadingToken(true);
+    try {
+      const res = await fetch(`http://localhost:8080/api/telegram/generate-link`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user?.token}`
+        }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setTelegramLinkUrl(data.telegramUrl);
+        window.open(data.telegramUrl, '_blank');
+      } else {
+        alert('Gagal membuat link Telegram.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Terjadi kesalahan koneksi.');
+    } finally {
+      setTelegramLoadingToken(false);
+    }
+  };
+
+  const checkTelegramStatus = async () => {
+    try {
+      const userRes = await fetch(`http://localhost:8080/api/v1/auth/me`, {
+        headers: { 'Authorization': `Bearer ${user?.token}` }
+      });
+      if (userRes.ok) {
+        const freshUser = await userRes.json();
+        if (freshUser.telegramLinked) {
+          setTelegramLinked(true);
+          setTelegramLinkUrl('');
+          alert('Selamat! Telegram berhasil terhubung.');
+        } else {
+          alert('Telegram belum terhubung. Silakan klik START di bot Telegram Anda terlebih dahulu.');
+        }
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
 
   const handlePaymentSubmit = async () => {
     if (!paymentAmount || isNaN(paymentAmount) || paymentAmount <= 0) return alert('Nominal harus valid');
@@ -290,6 +375,89 @@ function MemberDashboard({ user, page, onLogout, onNavigate, isSidebarOpen, togg
                 </button>
               </div>
             </div>
+          </div>
+
+          {/* --- TELEGRAM NOTIFICATION SECTION --- */}
+          <div className="dashboard-card manga-panel" style={{ marginBottom: '2rem', padding: '1.5rem', border: '3px solid #000', backgroundColor: '#f9f9f9' }}>
+            <h3 style={{ margin: '0 0 0.5rem 0', fontFamily: 'JetBrains Mono, monospace', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+              Notifikasi Pengingat Telegram
+            </h3>
+            
+            {telegramLinked ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <span style={{
+                  color: '#155724',
+                  fontWeight: 'bold',
+                  background: '#d4edda',
+                  padding: '0.5rem 1rem',
+                  border: '2px solid #155724',
+                  borderRadius: '4px',
+                  fontSize: '0.9rem',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.5rem'
+                }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  LAYANAN AKTIF
+                </span>
+                <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 600 }}>
+                  Akun Anda sudah terhubung dengan Telegram. Anda akan menerima pesan pengingat iuran otomatis di aplikasi Telegram Anda.
+                </p>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 600 }}>
+                  Hubungkan akun Anda dengan bot Telegram kami untuk menerima notifikasi pengingat iuran kas secara instan di HP Anda.
+                </p>
+                
+                {telegramLoadingToken ? (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <span style={{ fontFamily: 'monospace', fontWeight: 'bold' }}>Menyiapkan link koneksi...</span>
+                  </div>
+                ) : telegramLinkUrl ? (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '1rem', padding: '1rem', border: '2px dashed #000', backgroundColor: '#fff' }}>
+                    <div>
+                      <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', fontWeight: 'bold' }}>LANGKAH KONEKSI:</p>
+                      <ol style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.85rem' }}>
+                        <li>Klik tombol <strong>"Buka Telegram Bot"</strong> di bawah untuk membuka chat bot.</li>
+                        <li>Tekan/klik tombol <strong>"START"</strong> di aplikasi Telegram Anda.</li>
+                        <li>Kembali ke halaman ini dan status akan terupdate otomatis.</li>
+                      </ol>
+                    </div>
+                    <div style={{ display: 'flex', gap: '0.75rem', width: '100%', marginTop: '0.5rem' }}>
+                      <a 
+                        href={telegramLinkUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="manga-btn primary"
+                        style={{ padding: '0.5rem 1.5rem', fontWeight: 'bold', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                        BUKA TELEGRAM BOT
+                      </a>
+                      <button 
+                        onClick={checkTelegramStatus}
+                        className="manga-btn"
+                        style={{ padding: '0.5rem 1rem', fontWeight: 'bold', border: '2px solid #000', cursor: 'pointer', background: '#fff', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M23 4v6h-6"></path><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                        CEK STATUS KONEKSI
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button 
+                    className="manga-btn primary" 
+                    onClick={handleConnectTelegram}
+                    style={{ padding: '0.6rem 1.5rem', fontWeight: 'bold', alignSelf: 'flex-start', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 10h-1.25c-.78 0-1.5-.54-1.7-1.3l-.9-3.4c-.2-.76-.92-1.3-1.7-1.3H9.55c-.78 0-1.5.54-1.7 1.3l-.9 3.4c-.2.76-.92 1.3-1.7 1.3H4c-1.1 0-2 .9-2 2v2c0 1.1.9 2 2 2h2c.86 0 1.62-.55 1.89-1.37l.42-1.26c.27-.82 1.03-1.37 1.89-1.37h3.6c.86 0 1.62.55 1.89 1.37l.42 1.26c.27.82 1.03 1.37 1.89 1.37h2c1.1 0 2-.9 2-2v-2c0-1.1-.9-2-2-2zM12 14v6M10 20h4"></path></svg>
+                    HUBUNGKAN TELEGRAM
+                  </button>
+                )}
+              </div>
+            )}
           </div>
 
           {/* ROW 3: RIWAYAT TRANSAKSI ATAU RIWAYAT IURAN */}
