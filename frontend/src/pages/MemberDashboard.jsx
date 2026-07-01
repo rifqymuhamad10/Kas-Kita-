@@ -112,7 +112,7 @@ function MemberDashboard({ user, page, onLogout, onNavigate, isSidebarOpen, togg
         }
 
         // Fetch member bills
-        const billsRes = await fetch(`${API_BASE}/bills/member/${user?.uid}`, {
+        const billsRes = await fetch(`http://localhost:8080/api/bills/member/${user?.uid}`, {
           headers: { 'Authorization': `Bearer ${user?.token}` }
         });
         if (billsRes.ok) {
@@ -140,7 +140,7 @@ function MemberDashboard({ user, page, onLogout, onNavigate, isSidebarOpen, togg
     if (!paymentAmount || isNaN(paymentAmount) || paymentAmount <= 0) return alert('Nominal harus valid');
     setPaymentLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/payments/submit`, {
+      const res = await fetch(`http://localhost:8080/api/payments/submit`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

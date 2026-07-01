@@ -19,10 +19,20 @@ function AdminKasSiswaPage({ user, onLogout, onNavigate, isSidebarOpen, toggleSi
   const [tokenLoading, setTokenLoading] = React.useState(false);
   const [tokenCopied, setTokenCopied] = React.useState(false);
 
+  const [lastRefresh, setLastRefresh] = React.useState(null);
+
   React.useEffect(() => {
     fetchDues();
     fetchPendingPayments();
     fetchMembers();
+
+    // Auto-refresh member list setiap 15 detik agar admin tahu jika ada member baru yang redeem token
+    const interval = setInterval(() => {
+      fetchMembers();
+      setLastRefresh(new Date());
+    }, 15000);
+
+    return () => clearInterval(interval); // cleanup saat unmount
   }, []);
 
   const fetchDues = async () => {
@@ -333,7 +343,31 @@ function AdminKasSiswaPage({ user, onLogout, onNavigate, isSidebarOpen, toggleSi
 
           {/* === DAFTAR MEMBER === */}
           <div style={{ marginTop: '2rem', padding: '1rem', border: '2px solid #000', backgroundColor: '#fff' }}>
-            <h3 style={{ marginBottom: '1rem' }}>Daftar Member</h3>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+              <h3 style={{ margin: 0 }}>Daftar Member</h3>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                {lastRefresh && (
+                  <span style={{ fontSize: '0.75rem', color: '#888', fontFamily: 'JetBrains Mono, monospace' }}>
+                    Update: {lastRefresh.toLocaleTimeString('id-ID')}
+                  </span>
+                )}
+                <button
+                  onClick={() => { fetchMembers(); setLastRefresh(new Date()); }}
+                  style={{
+                    background: '#1a1a1a',
+                    color: 'white',
+                    border: 'none',
+                    padding: '0.3rem 0.8rem',
+                    cursor: 'pointer',
+                    fontFamily: 'JetBrains Mono, monospace',
+                    fontSize: '0.8rem',
+                    fontWeight: 'bold'
+                  }}
+                >
+                  ↻ REFRESH
+                </button>
+              </div>
+            </div>
             <table className="transaction-table" style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ borderBottom: '2px solid #000' }}>

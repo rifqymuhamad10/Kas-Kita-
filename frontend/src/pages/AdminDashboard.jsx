@@ -112,11 +112,11 @@ function AdminDashboard({ user, onLogout, onNavigate, isSidebarOpen, toggleSideb
     const fetchStatus = async () => {
       try {
         // Fetch all members
-        const membersRes = await fetch(`${API_BASE}/users/members`, {
+        const membersRes = await fetch(`http://localhost:8080/api/users/members`, {
           headers: { 'Authorization': `Bearer ${user?.token}` }
         });
         // Fetch all bills
-        const billsRes = await fetch(`${API_BASE}/bills`, {
+        const billsRes = await fetch(`http://localhost:8080/api/bills`, {
           headers: { 'Authorization': `Bearer ${user?.token}` }
         });
 
